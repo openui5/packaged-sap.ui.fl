@@ -18,7 +18,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.registry.ChangeRegistry
 	 *
 	 * @author SAP SE
-	 * @version 1.44.0
+	 * @version 1.44.1
 	 * @experimental Since 1.27.0
 	 *
 	 */
@@ -362,6 +362,7 @@ sap.ui.define([
 				jQuery.each(oControlReg, function(sChangeType, oRegistryItem) {
 					var bIsChangeTypeEnabled = that._oSettings.isChangeTypeEnabled(sChangeType, sLayer);
 					if (!bIsChangeTypeEnabled) {
+						Utils.log.warning("Change type " + sChangeType + " not enabled for layer " + sLayer);
 						delete oControlReg[sChangeType];
 					}
 				});

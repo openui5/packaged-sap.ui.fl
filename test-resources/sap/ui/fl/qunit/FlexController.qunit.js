@@ -79,52 +79,33 @@ jQuery.sap.require('sap.ui.fl.context.ContextManager');
 		assert.ok(this.oFlexController);
 	});
 
-	QUnit.test("processView shall resolve if there are no changes", function (assert) {
-
-		this.oFlexController._oChangePersistence.getChangesForView = function () {
-			return Promise.resolve([]);
-		};
-		this.stub(FlexSettings, "getInstance").returns(
-			Promise.resolve(new FlexSettings({}))
-		);
-
-		//Call CUT
-		return this.oFlexController.processView(this.oControl).then(function () {
-			assert.ok(true, "Promise shall be resolved if there are no changes");
-		});
-	});
-
 	QUnit.test("applyChange shall not crash if parameters are missing", function () {
 		QUnit.expect(0);
 
 		this.oFlexController.applyChange(null, null);
 	});
 
-	QUnit.test('createAndApplyChange shall crash if no change handler can be found', function (assert){
+	QUnit.test('createAndApplyChange shall not crash if no change handler can be found', function (assert){
 
+		var oUtilsLogStub = this.stub(Utils.log, "warning");
+		var exceptionThrown = false;
 		var oChangeSpecificData = {};
+		var oControlType = {};
 		var oControl = {};
+		var oChange = {};
+
 		this.stub(this.oFlexController, "_getChangeHandler").returns(undefined);
-
-		assert.throws(function(){
-			this.oFlexController.createAndApplyChange(oChangeSpecificData, oControl);
-		}.bind(this));
-	});
-
-	QUnit.test('createAndApplyChange shall crash if no change handler can be found', function (assert){
-
-		var exceptionThrown;
-		var oChangeSpecificData = {};
-		var oControl = {};
-		this.stub(this.oFlexController, "_getChangeHandler").returns(undefined);
+		this.stub(JsControlTreeModifier, "getControlType").returns(oControlType);
+		this.stub(this.oFlexController, "addChange").returns(oChange);
 
 		try {
 			this.oFlexController.createAndApplyChange(oChangeSpecificData, oControl);
 		} catch (ex) {
-			exceptionThrown = ex;
+			exceptionThrown = true;
 		}
 
-		assert.ok(exceptionThrown, "Exception thrown");
+		assert.equal(exceptionThrown, false, "no exception was thrown");
+		assert.ok(oUtilsLogStub.calledOnce, "a warning was logged");
 	});
 
 	QUnit.test('_resolveGetChangesForView does not crash, if change can be created and applied', function (assert){
@@ -303,23 +284,6 @@ jQuery.sap.require('sap.ui.fl.context.ContextManager');
 		this.oFlexController.applyChange(this.oChange, this.oControl);
 
 		sinon.assert.calledOnce(fChangeHandler.applyChange, "Change shall be applied");
-	});
-
-	QUnit.test("_resolveGetChangesForView shall clean the merged changes if requested in the property bag", function (assert) {
-		var mPropertyBag = {
-			cleanMergedChangesAfterwards: true
-		};
-
-		var oChange = new Change(labelChangeContent);
-		var aChanges = [oChange];
-		this.oComponent = new sap.ui.core.UIComponent();
-		this.stub(this.oFlexController, "_logApplyChangeError"); // the change will run into an error but this does not matter in the test
-
-		this.oFlexController._oChangePersistence.setMergedChanges([oChange]);
-
-		this.oFlexController._resolveGetChangesForView(mPropertyBag, aChanges);
-
-		assert.equal(this.oFlexController._oChangePersistence._aMergedChanges.length, 0, "the merged changes list is cleared");
 	});
 
 	QUnit.test("addChange shall add a change", function(assert) {
@@ -558,12 +522,16 @@ jQuery.sap.require('sap.ui.fl.context.ContextManager');
 		var oCheckTargetAndApplyChangeStub = this.stub(FlexController.prototype, "_checkTargetAndApplyChange");
 
 		var oSomeOtherChange = {};
+
 		var mChanges = {
 			"someOtherId": [oSomeOtherChange]
 		};
+		var fnGetChangesMap = function () {
+			return mChanges;
+		};
 		var oAppComponent = {};
 
-		FlexController.applyChangesOnControl(mChanges, oAppComponent, this.oControl);
+		FlexController.applyChangesOnControl(fnGetChangesMap, oAppComponent, this.oControl);
 
 		assert.equal(oCheckTargetAndApplyChangeStub.callCount, 0, "no change was processed");
 	});
@@ -580,9 +548,12 @@ jQuery.sap.require('sap.ui.fl.context.ContextManager');
 			"someId": [oChange0, oChange1, oChange2, oChange3],
 			"someOtherId": [oSomeOtherChange]
 		};
+		var fnGetChangesMap = function () {
+			return mChanges;
+		};
 		var oAppComponent = {};
 
-		FlexController.applyChangesOnControl(mChanges, oAppComponent, this.oControl);
+		FlexController.applyChangesOnControl(fnGetChangesMap, oAppComponent, this.oControl);
 
 		assert.equal(oCheckTargetAndApplyChangeStub.callCount, 4, "all four changes for the control were processed");
 		assert.equal(oCheckTargetAndApplyChangeStub.getCall(0).args[0], oChange0, "the first change was processed first");
@@ -622,7 +593,7 @@ jQuery.sap.require('sap.ui.fl.context.ContextManager');
 			"someId": [{}]
 		};
 
-		this.stub(ChangePersistenceFactory, "_getChangesForComponentAfterInstantiation").returns(Promise.resolve(mDeterminedChanges));
+		this.stub(ChangePersistenceFactory, "_getChangesForComponentAfterInstantiation").returns(Promise.resolve(function() {return mDeterminedChanges;}));
 
 		var oComponent = {
 			getManifestObject: function () {},
@@ -641,6 +612,9 @@ jQuery.sap.require('sap.ui.fl.context.ContextManager');
 			this.oChange = new Change(labelChangeContent);
 			this.mChanges = {};
 			this.mChanges[this.sLabelId] = [this.oChange];
+			this.fnGetChangesMap = function () {
+				return this.mChanges;
+			}.bind(this);
 
 			this.oChangeHandlerApplyChangeStub = sandbox.stub();
 			sandbox.stub(FlexController.prototype, "_getChangeHandler").returns({
@@ -654,7 +628,7 @@ jQuery.sap.require('sap.ui.fl.context.ContextManager');
 	});
 
 	QUnit.test("adds custom data on the first change applied on a control", function (assert) {
-		FlexController.applyChangesOnControl(this.mChanges, {}, this.oControl);
+		FlexController.applyChangesOnControl(this.fnGetChangesMap, {}, this.oControl);
 
 		assert.ok(this.oChangeHandlerApplyChangeStub.calledOnce, "the change was applied");
 		assert.ok(this.oControl.getCustomData()[0], "CustomData was set");
@@ -670,7 +644,7 @@ jQuery.sap.require('sap.ui.fl.context.ContextManager');
 		});
 		this.oControl.addCustomData(oFlexCustomData);
 
-		FlexController.applyChangesOnControl(this.mChanges, {}, this.oControl);
+		FlexController.applyChangesOnControl(this.fnGetChangesMap, {}, this.oControl);
 
 		assert.ok(this.oChangeHandlerApplyChangeStub.calledOnce, "the change was applied");
 		assert.ok(this.oControl.getCustomData()[0], "CustomData was set");
@@ -686,7 +660,7 @@ jQuery.sap.require('sap.ui.fl.context.ContextManager');
 		});
 		this.oControl.addCustomData(oFlexCustomData);
 
-		FlexController.applyChangesOnControl(this.mChanges, {}, this.oControl);
+		FlexController.applyChangesOnControl(this.fnGetChangesMap, {}, this.oControl);
 
 		assert.equal(this.oChangeHandlerApplyChangeStub.callCount, 0, "the change was NOT applied");
 		assert.ok(this.oControl.getCustomData()[0], "CustomData is still set");
@@ -702,6 +676,9 @@ jQuery.sap.require('sap.ui.fl.context.ContextManager');
 			this.oChange2 = new Change(labelChangeContent2);
 			this.mChanges = {};
 			this.mChanges[this.sLabelId] = [this.oChange, this.oChange2];
+			this.fnGetChangesMap = function () {
+				return this.mChanges;
+			}.bind(this);
 
 			this.oChangeHandlerApplyChangeStub = sandbox.stub();
 			sandbox.stub(FlexController.prototype, "_getChangeHandler").returns({
@@ -714,7 +691,7 @@ jQuery.sap.require('sap.ui.fl.context.ContextManager');
 		}
 	});
 	QUnit.test("calls the change handler twice for two unapplied changes and concatenate the custom data correct", function (assert) {
-		FlexController.applyChangesOnControl(this.mChanges, {}, this.oControl);
+		FlexController.applyChangesOnControl(this.fnGetChangesMap, {}, this.oControl);
 
 		assert.ok(this.oChangeHandlerApplyChangeStub.calledTwice, "both changes were applied");
 		assert.ok(this.oControl.getCustomData()[0], "CustomData was set");
@@ -730,7 +707,7 @@ jQuery.sap.require('sap.ui.fl.context.ContextManager');
 		});
 		this.oControl.addCustomData(oFlexCustomData);
 
-		FlexController.applyChangesOnControl(this.mChanges, {}, this.oControl);
+		FlexController.applyChangesOnControl(this.fnGetChangesMap, {}, this.oControl);
 
 		assert.ok(this.oChangeHandlerApplyChangeStub.calledOnce, "the change was applied");
 		assert.equal(this.oChangeHandlerApplyChangeStub.getCall(0).args[0], this.oChange2, "the second change was applied");
@@ -747,7 +724,7 @@ jQuery.sap.require('sap.ui.fl.context.ContextManager');
 		});
 		this.oControl.addCustomData(oFlexCustomData);
 
-		FlexController.applyChangesOnControl(this.mChanges, {}, this.oControl);
+		FlexController.applyChangesOnControl(this.fnGetChangesMap, {}, this.oControl);
 
 		assert.ok(this.oChangeHandlerApplyChangeStub.calledOnce, "the change was applied");
 		assert.equal(this.oChangeHandlerApplyChangeStub.getCall(0).args[0], this.oChange, "the first change was applied");
@@ -765,7 +742,7 @@ jQuery.sap.require('sap.ui.fl.context.ContextManager');
 		});
 		this.oControl.addCustomData(oFlexCustomData);
 
-		FlexController.applyChangesOnControl(this.mChanges, {}, this.oControl);
+		FlexController.applyChangesOnControl(this.fnGetChangesMap, {}, this.oControl);
 
 		assert.equal(this.oChangeHandlerApplyChangeStub.callCount, 0, "no changes were applied");
 		assert.ok(this.oControl.getCustomData()[0], "CustomData was set");

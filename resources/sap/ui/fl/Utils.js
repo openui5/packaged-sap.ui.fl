@@ -15,7 +15,7 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.Utils
 	 * @author SAP SE
-	 * @version 1.44.0
+	 * @version 1.44.1
 	 * @experimental Since 1.25.0
 	 */
 	var Utils = {
@@ -436,6 +436,11 @@ sap.ui.define([
 			}
 
 			if (oSapApp && oSapApp.type && oSapApp.type !== "application") {
+				//we need to call this method only when the component
+				//an instance of Component is in order to walk up the tree.
+				if (oComponent instanceof sap.ui.core.Component) {
+					oComponent = this._getComponentForControl(oComponent);
+				}
 				return this.getAppComponentForControl(oComponent);
 			}
 

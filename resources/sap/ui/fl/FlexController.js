@@ -30,7 +30,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexController
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.44.0
+	 * @version 1.44.1
 	 */
 	var FlexController = function (sComponentName) {
 		this._oChangePersistence = undefined;
@@ -155,7 +155,8 @@ sap.ui.define([
 	 */
 	FlexController.prototype.addChange = function (oChangeSpecificData, oControl) {
 		var oChange = this.createChange(oChangeSpecificData, oControl);
-		this._oChangePersistence.addChange(oChange);
+		var oComponent = Utils.getAppComponentForControl(oControl);
+		this._oChangePersistence.addChange(oChange, oComponent);
 		return oChange;
 	};
 
@@ -171,7 +172,8 @@ sap.ui.define([
 	 * @public
 	 */
 	FlexController.prototype.addPreparedChange = function (oChange, oControl) {
-		this._oChangePersistence.addChange(oChange);
+		var oComponent = Utils.getAppComponentForControl(oControl);
+		this._oChangePersistence.addChange(oChange, oComponent);
 		return oChange;
 	};
 
@@ -207,49 +209,12 @@ sap.ui.define([
 	};
 
 	/**
-	 * Loads and applies all changes for the specified js control tree view
-	 *
-	 * @param {object} oView - the view to process as JS control tree
-	 * @param {boolean} bUnmergedChangesOnly - flag if view should only processed with changes flagged as unmerged within the ChangePersistence
-	 * @param {boolean} mPropertyBag.cleanMergedChangesAfterwards - flag if merged changes array should be cleaned afterwards for upcomming merges
-	 * @returns {Promise} without parameters. Promise resolves once all changes of the view have been applied
-	 * @public
-	 */
-	FlexController.prototype.processView = function (oView, bUnmergedChangesOnly) {
-		var mPropertyBag = {
-			unmergedChangesOnly: bUnmergedChangesOnly
-		};
-
-		return this.processJsView(oView, mPropertyBag);
-	};
-
-	/**
-	 * Loads and applies all changes for the specified js control tree view
-	 *
-	 * @param {object} oView - the view to process as JS control tree
-	 * @param {boolean} mPropertyBag.unmergedChangesOnly - flag if view should only processed with changes flagged as unmerged within the ChangePersistence
-	 * @param {boolean} mPropertyBag.cleanMergedChangesAfterwards - flag if merged changes array should be cleaned afterwards for upcomming merges
-	 * @returns {Promise} without parameters. Promise resolves once all changes of the view have been applied
-	 * @public
-	 */
-	FlexController.prototype.processJsView = function (oView, mPropertyBag) {
-		mPropertyBag.appComponent = Utils.getAppComponentForControl(oView);
-		mPropertyBag.appDescriptor = Utils.getAppDescriptor(oView);
-		mPropertyBag.modifier = JsControlTreeModifier;
-		mPropertyBag.view = oView;
-
-		return this.processViewByModifier(mPropertyBag);
-	};
-
-	/**
 	 * Loads and applies all changes for the specified xml tree view
 	 *
 	 * @param {object} oView - the view to process as XML tree
 	 * @param {object} mPropertyBag
 	 * @param {string} mPropertyBag.viewId - id of the processed view
 	 * @param {string} mPropertyBag.componentId - name of the root component of the view
-	 * @param {boolean} mPropertyBag.unmergedChangesOnly - flag if view should only processed with changes flagged as unmerged within the ChangePersistence
-	 * @param {boolean} mPropertyBag.cleanMergedChangesAfterwards - flag if merged changes array should be cleaned afterwards for upcomming merges
 	 * @returns {Promise} without parameters. Promise resolves once all changes of the view have been applied
 	 * @public
 	 */
@@ -271,44 +236,24 @@ sap.ui.define([
 	 *
 	 * @param {object} mPropertyBag
 	 * @param {object} mPropertyBag.view - the view to process as XML tree
+	 * @param {object} mPropertyBag.modifier - polymorph reuse operations handling the changes on the given view type
 	 * @param {string} mPropertyBag.appComponent - app component
-	 * @param {boolean} mPropertyBag.unmergedChangesOnly - flag if view should only processed with changes flagged as unmerged within the ChangePersistence
-	 * @param {boolean} mPropertyBag.cleanMergedChangesAfterwards - flag if merged changes array should be cleaned afterwards for upcomming merges
-	 * @param {object} mPropertyBag.appDescriptor - app descriptor containing the metadata of the current application
-	 * @param {string} siteId - id of the flp site containing this application
 	 * @returns {Promise} without parameters. Promise resolves once all changes of the view have been applied
 	 * @public
 	 */
 	FlexController.prototype.processViewByModifier = function (mPropertyBag) {
 
-		// by default on a xml view only handle ALL changes and JS only unmerged changes
-		mPropertyBag.unmergedChangesOnly = mPropertyBag.unmergedChangesOnly || mPropertyBag.modifier === JsControlTreeModifier;
-		// by default remove the array of merged changes for further view processing (i.e. after recreating the view by FLP)
-		mPropertyBag.cleanMergedChangesAfterwards = mPropertyBag.cleanMergedChangesAfterwards || mPropertyBag.modifier === JsControlTreeModifier;
 		mPropertyBag.viewId = mPropertyBag.modifier.getId(mPropertyBag.view);
 		mPropertyBag.siteId = Utils.getSiteId(mPropertyBag.appComponent);
 
 		var oGetFlexSettingsPromise = FlexSettings.getInstance(this.getComponentName(), mPropertyBag);
 		return oGetFlexSettingsPromise.then(
-			this._resolveGetFlexSettingsInstance.bind(this, mPropertyBag),
+			this._oChangePersistence.getChangesForView.bind(this, mPropertyBag.viewId, mPropertyBag),
 			this._handlePromiseChainError.bind(this, mPropertyBag.view)
 		).then(
 			this._resolveGetChangesForView.bind(this, mPropertyBag)
 		);
 	};
-
-	FlexController.prototype._resolveGetFlexSettingsInstance = function (mPropertyBag) {
-		var oGetChangesPromise;
-
-		if (!mPropertyBag.unmergedChangesOnly) {
-			oGetChangesPromise = this._oChangePersistence.getChangesForView(mPropertyBag.viewId, mPropertyBag);
-		} else {
-			oGetChangesPromise = this._oChangePersistence.getUnmergedChangesForView(mPropertyBag.viewId, mPropertyBag);
-		}
-
-		return oGetChangesPromise;
-	};
-
 
 	/**
 	 * Looping over all retrieved flexibility changes and applying them onto the targeted control within the view
@@ -318,19 +263,13 @@ sap.ui.define([
 	 * @param {string} mPropertyBag.viewId - id of the processed view
 	 * @param {string} mPropertyBag.appComponent - app component
 	 * @param {object} mPropertyBag.modifier - polymorph reuse operations handling the changes on the given view type
-	 * @param {boolean} mPropertyBag.unmergedChangesOnly - flag if view should only processed with changes flagged as unmerged within the ChangePersistence
-	 * @param {boolean} mPropertyBag.cleanMergedChangesAfterwards - flag if merged changes array should be cleaned afterwards for upcomming merges
 	 * @param {object} mPropertyBag.appDescriptor - app descriptor containing the metadata of the current application
 	 * @param {string} mPropertyBag.siteId - id of the flp site containing this application
-	 * @param {sap.ui.fl.Change[]} aChanges - list of flexibilty changes on controls for the current processed view
+	 * @param {sap.ui.fl.Change[]} aChanges - list of flexibility changes on controls for the current processed view
 	 * @returns {object} view - view object with all applied changes
 	 * @private
 	 */
 	FlexController.prototype._resolveGetChangesForView = function (mPropertyBag, aChanges) {
-		if (!mPropertyBag.unmergedChangesOnly) {
-			this._oChangePersistence.clearMergedChanges();
-		}
-
 		if (!Array.isArray(aChanges)) {
 			var sErrorMessage = "No list of changes was passed for processing the flexibility on view: " + mPropertyBag.view;
 			Utils.log.error(sErrorMessage, undefined, "sap.ui.fl.FlexController");
@@ -356,10 +295,6 @@ sap.ui.define([
 				this._logApplyChangeError(oException, oChange);
 			}
 		}.bind(this));
-
-		if (mPropertyBag.cleanMergedChangesAfterwards) {
-			this._oChangePersistence.setMergedChanges([]);
-		}
 
 		return mPropertyBag.view;
 	};
@@ -390,10 +325,8 @@ sap.ui.define([
 	 * @param {object} mPropertyBag propertyBag passed by the view processing
 	 * @param {object} mPropertyBag.view - the view to process
 	 * @param {object} mPropertyBag.modifier - polymorph reuse operations handling the changes on the given view type
-	 * @param {boolean} mPropertyBag.unmergedChangesOnly - flag if view should only processed with changes flagged as unmerged within the ChangePersistence
 	 * @param {object} mPropertyBag.appDescriptor - app descriptor containing the metadata of the current application
 	 * @param {object} mPropertyBag.appComponent - component instance that is currently loading
-	 * @param {string} siteId - id of the flp site containing this application
 	 * @private
 	 */
 	FlexController.prototype._checkTargetAndApplyChange = function (oChange, oControl, mPropertyBag) {
@@ -402,7 +335,10 @@ sap.ui.define([
 		var oChangeHandler = this._getChangeHandler(oChange, sControlType);
 
 		if (!oChangeHandler) {
-			throw (new Error("A change handler for the given change type does not exist."));
+			if (oChange && oControl) {
+				Utils.log.warning("Change handler implementation for change not found or change type not enabled for current layer - Change ignored");
+			}
+			return;
 		}
 
 		var aCustomData = oModifier.getAggregation(oControl, "customData") || [];
@@ -421,7 +357,13 @@ sap.ui.define([
 		});
 
 		if (aAppliedChanges.indexOf(sChangeId) === -1) {
-			oChangeHandler.applyChange(oChange, oControl, mPropertyBag);
+			try {
+				oChangeHandler.applyChange(oChange, oControl, mPropertyBag);
+			} catch (ex) {
+				this._setMergeError(true);
+				Utils.log.error("Change could not be applied. Merge error detected.");
+				throw ex;
+			}
 
 			if (oAppliedChangeCustomData) {
 				oModifier.setProperty(oAppliedChangeCustomData, "value", sAppliedChanges + "," + sChangeId);
@@ -461,7 +403,7 @@ sap.ui.define([
 		var oChangeHandler = this._getChangeHandler(oChange, sControlType);
 		if (!oChangeHandler) {
 			if (oChange && oControl) {
-				Utils.log.warning("Change handler implementation for change not found - Change ignored");
+				Utils.log.warning("Change handler implementation for change not found or change type not enabled for current layer - Change ignored");
 			}
 			return;
 		}
@@ -629,12 +571,13 @@ sap.ui.define([
 	 * Apply the changes on the control. This function is called just before the end of the
 	 * creation process.
 	 *
-	 * @param {array} mChanges Changes belonging to the app component
+	 * @param {function} fnGetChangesMap Getter to retrieve the mapped changes belonging to the app component
 	 * @param {object} oAppComponent Component instance that is currently loading
 	 * @param {object} oControl Control instance that is being created
 	 * @public
 	 */
-	FlexController.applyChangesOnControl = function (mChanges, oAppComponent, oControl) {
+	FlexController.applyChangesOnControl = function (fnGetChangesMap, oAppComponent, oControl) {
+		var mChanges = fnGetChangesMap();
 		var aChangesForControl = mChanges[oControl.getId()] || [];
 		aChangesForControl.forEach(function (oChange) {
 			FlexController.prototype._checkTargetAndApplyChange(oChange, oControl, {modifier: JsControlTreeModifier, appComponent: oAppComponent});
@@ -650,11 +593,9 @@ sap.ui.define([
 	 */
 	FlexController.getChangesAndPropagate = function (oComponent, vConfig) {
 		var oManifest = oComponent.getManifestObject();
-		sap.ui.fl.ChangePersistenceFactory._getChangesForComponentAfterInstantiation(vConfig, oManifest, oComponent)
-			.then(function(mChanges) {
-				if (Object.keys(mChanges).length !== 0) {
-					oComponent.addPropagationListener(FlexController.applyChangesOnControl.bind(this, mChanges, oComponent));
-				}
+		ChangePersistenceFactory._getChangesForComponentAfterInstantiation(vConfig, oManifest, oComponent)
+			.then(function(fnGetChangesMap) {
+				oComponent.addPropagationListener(FlexController.applyChangesOnControl.bind(this, fnGetChangesMap, oComponent));
 			}
 		);
 	};
