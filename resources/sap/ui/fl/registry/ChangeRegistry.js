@@ -1,15 +1,15 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2016 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
 sap.ui.define([
 	"sap/ui/fl/Utils", "jquery.sap.global", "sap/ui/fl/registry/ChangeRegistryItem", "sap/ui/fl/registry/ChangeTypeMetadata",
-	"sap/ui/fl/registry/Settings", "sap/ui/fl/changeHandler/HideControl", "sap/ui/fl/changeHandler/MoveElements",
+	"sap/ui/fl/registry/Settings", "sap/ui/fl/changeHandler/HideControl", "sap/ui/fl/changeHandler/MoveElements", "sap/ui/fl/changeHandler/MoveControls",
 	"sap/ui/fl/changeHandler/PropertyChange", "sap/ui/fl/changeHandler/PropertyBindingChange", "sap/ui/fl/changeHandler/UnhideControl",
 	"sap/ui/fl/changeHandler/StashControl", "sap/ui/fl/changeHandler/UnstashControl"
-], function(Utils, jQuery, ChangeRegistryItem, ChangeTypeMetadata, Settings, HideControl, MoveElements, PropertyChange, PropertyBindingChange, UnhideControl, StashControl, UnstashControl) {
+], function(Utils, jQuery, ChangeRegistryItem, ChangeTypeMetadata, Settings, HideControl, MoveElements, MoveControls, PropertyChange, PropertyBindingChange, UnhideControl, StashControl, UnstashControl) {
 	"use strict";
 
 	/**
@@ -18,7 +18,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.registry.ChangeRegistry
 	 *
 	 * @author SAP SE
-	 * @version 1.44.3
+	 * @version 1.44.5
 	 * @experimental Since 1.27.0
 	 *
 	 */
@@ -34,6 +34,7 @@ sap.ui.define([
 	ChangeRegistry.prototype._oDefaultChangeHandlers = {
 		"hideControl": HideControl,
 		"moveElements": MoveElements,
+		"moveControls": MoveControls,
 		"propertyChange": PropertyChange,
 		"propertyBindingChange": PropertyBindingChange,
 		"unhideControl": UnhideControl,
