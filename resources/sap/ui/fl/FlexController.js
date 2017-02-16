@@ -30,7 +30,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexController
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.46.0
+	 * @version 1.46.1
 	 */
 	var FlexController = function (sComponentName) {
 		this._oChangePersistence = undefined;
