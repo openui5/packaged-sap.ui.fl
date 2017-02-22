@@ -15,7 +15,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.ChangePersistenceFactory
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.46.2
+	 * @version 1.46.3
 	 */
 	var ChangePersistenceFactory = {};
 
@@ -154,7 +154,11 @@ sap.ui.define([
 		// stop processing if the component is not of the type application
 		if (!Utils.isApplication(oManifest)) {
 			return Promise.resolve(function() {
-				return [];
+				return {
+					mChanges: {},
+					mDependencies: {},
+					mDependentChangesOnMe: {}
+				};
 			});
 		}
 
