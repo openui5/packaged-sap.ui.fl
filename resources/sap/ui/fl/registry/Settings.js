@@ -132,7 +132,7 @@ sap.ui.define([
 	};
 
 	/**
-	 * Returns a settings instance after reading the settings from the backend if not already done. There is only one instance of settings during a
+	 * Returns a settings instance after reading the settings from the back end if not already done. There is only one instance of settings during a
 	 * session.
 	 *
 	 * @param {string} sComponentName current UI5 component name
@@ -143,20 +143,34 @@ sap.ui.define([
 	 * @public
 	 */
 	Settings.getInstance = function(sComponentName, mPropertyBag) {
-		return Cache.getChangesFillingCache(LrepConnector.createConnector(), sComponentName, mPropertyBag).then(function(oFileContent) {
-			var oSettings;
-			if (Settings._instances[sComponentName]) {
-				// if instance exists the backend settings are coming from the cache as well and can be ignored
-				oSettings = Settings._instances[sComponentName];
-			} else if (oFileContent.changes && oFileContent.changes.settings) {
-				oSettings = new Settings(oFileContent.changes.settings);
-				Settings._instances[sComponentName] = oSettings;
-			} else {
-				oSettings = new Settings({});
-				Settings._instances[sComponentName] = oSettings;
-			}
-			return oSettings;
-		});
+		if (Settings._instances[sComponentName]) {
+			return Promise.resolve(Settings._instances[sComponentName]);
+		}
+
+		return Cache.getChangesFillingCache(LrepConnector.createConnector(), sComponentName, mPropertyBag)
+			.then(Settings._storeInstance.bind(Settings, sComponentName));
+	};
+
+	/**
+	 * Writes the data received from the back end or cache into an internal map and then returns the settings object within a Promise.
+	 *
+	 * @param sComponentName - current SAPUI5 component name
+	 * @param oFileContent - data received from the back end or cache for the given component
+	 * @returns {Promise} with parameter <code>oInstance</code> of type {sap.ui.fl.registry.Settings}
+	 * @protected
+	 *
+	 */
+	Settings._storeInstance = function(sComponentName, oFileContent) {
+		var oSettings;
+
+		if (oFileContent.changes && oFileContent.changes.settings) {
+			oSettings = new Settings(oFileContent.changes.settings);
+		} else {
+			oSettings = new Settings({});
+		}
+
+		Settings._instances[sComponentName] = oSettings;
+		return oSettings;
 	};
 
 	/**
@@ -315,9 +329,9 @@ sap.ui.define([
 	};
 
 	/**
-	 * Returns true if backend is ModelS backend.
+	 * Returns true if back end is ModelS back end.
 	 *
-	 * @returns {boolean} true if ATO coding exists in backend.
+	 * @returns {boolean} true if ATO coding exists in back end.
 	 * @public
 	 */
 	Settings.prototype.isModelS = function() {
@@ -329,7 +343,7 @@ sap.ui.define([
 	};
 
 	/**
-	 * Returns true if ATO is enabled in the backend.
+	 * Returns true if ATO is enabled in the back end.
 	 *
 	 * @returns {boolean} true if ATO is enabled.
 	 * @public
@@ -371,7 +385,7 @@ sap.ui.define([
 	};
 
 	/**
-	 * Is current back end system defined as productive system which can also transport changes
+	 * Checks whether the current system is defined as a productive system.
 	 *
 	 * @public
 	 * @returns {boolean} true if system is productive system

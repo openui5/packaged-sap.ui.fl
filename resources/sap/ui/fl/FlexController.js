@@ -30,7 +30,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexController
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.46.3
+	 * @version 1.46.4
 	 */
 	var FlexController = function (sComponentName) {
 		this._oChangePersistence = undefined;
@@ -596,16 +596,12 @@ sap.ui.define([
 	};
 
 	/**
-	 * Set flag if an error has occurred when merging changes
+	 * Set a flag in the settings instance in case an error has occurred when merging changes
 	 *
-	 * @param {Boolean} bHasErrorOccurred Indicator if an error has occurred
 	 * @returns {Promise} Promise resolved after the merge error flag is set
 	 * @private
 	 */
-	FlexController.prototype._setMergeError = function (bHasErrorOccurred) {
-
-		// in this case FlexSettings.getInstance does not get passed (AppDescriptorId and SiteId) as setMergeErrorOccurred ONLY enrich setting instance
-		// with runtime data. No direct backend call
+	FlexController.prototype._setMergeError = function () {
 		return FlexSettings.getInstance(this.getComponentName()).then(function (oSettings) {
 			oSettings.setMergeErrorOccured(true);
 		});

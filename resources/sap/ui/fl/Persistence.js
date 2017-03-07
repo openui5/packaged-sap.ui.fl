@@ -10,19 +10,19 @@ sap.ui.define([
 
 	"use strict";
 	/**
-	 * Helper object to access a change from the backend. Access helper object for each change (and variant) which was fetched from the backend
+	 * Helper object to access a change from the back end. Access helper object for each change (and variant) which was fetched from the back end
 	 *
 	 * @constructor
 	 * @param {sap.ui.core.Control} oControl - the control for which the changes should be fetched
 	 * @param {string} [sStableIdPropertyName='id'] the stable id
 	 * @alias sap.ui.fl.Persistence
 	 * @author SAP SE
-	 * @version 1.46.3
+	 * @version 1.46.4
 	 * @experimental Since 1.25.0
 	 */
 	var Persistence = function(oControl, sStableIdPropertyName) {
 		this._oControl = oControl;
-		this._bHasLoadedChangesFromBackend = false;
+		this._bHasLoadedChangesFromBackEnd = false;
 
 		this._sStableIdPropertyName = sStableIdPropertyName || 'id';
 		this._sStableId = this._getStableId();
@@ -163,7 +163,7 @@ sap.ui.define([
 	};
 
 	/**
-	 * Calls the backend asynchronously and fetches all changes and variants which point to this control in the same component.
+	 * Calls the back end asynchronously and fetches all changes and variants in the same component pointing to this control.
 	 *
 	 * @see sap.ui.fl.Change
 	 * @returns {Promise} with parameter <code>aResults</code> which is a map with key changeId and value instance of sap.ui.fl.Change
@@ -177,7 +177,7 @@ sap.ui.define([
 			siteId: this._sSiteId
 		};
 
-		if (this._bHasLoadedChangesFromBackend === true) {
+		if (this._bHasLoadedChangesFromBackEnd === true) {
 			if (this._oMessagebundle) {
 				this._checkForMessagebundleBinding();
 			}
@@ -198,12 +198,12 @@ sap.ui.define([
 			this._oMessagebundle = oFile.changes.messagebundle;
 			this._checkForMessagebundleBinding();
 		}
-		this._bHasLoadedChangesFromBackend = true;
+		this._bHasLoadedChangesFromBackEnd = true;
 		return this._oChanges;
 	};
 
 	/**
-	 * Calls the backend asynchronously and fetches all changes and variants of the current component.
+	 * Calls the back end asynchronously and fetches all changes and variants of the current component.
 	 *
 	 * @see sap.ui.fl.Change
 	 * @returns {Promise} with parameter <code>aResults</code> which is a map with key changeId and value instance of sap.ui.fl.Change
@@ -603,7 +603,7 @@ sap.ui.define([
 	};
 
 	/**
-	 * Saves/flushes all current changes to the backend.
+	 * Saves/flushes all current changes to the back end.
 	 *
 	 * @returns {Promise} resolving with an array of responses or rejecting with the first error
 	 * @public

@@ -14,7 +14,7 @@ sap.ui.define([
 		 *
 		 * @alias sap.ui.fl.changeHandler.MoveControls
 		 * @author SAP SE
-		 * @version 1.46.3
+		 * @version 1.46.4
 		 * @experimental Since 1.46
 		 */
 		var MoveControls = { };

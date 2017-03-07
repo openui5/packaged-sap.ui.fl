@@ -16,7 +16,7 @@ sap.ui.define([
 	 * @param {object} oFile - file content and admin data
 	 * @experimental Since 1.25.0
 	 * @author SAP SE
-	 * @version 1.46.3
+	 * @version 1.46.4
 	 */
 	var Change = function (oFile) {
 		EventProvider.apply(this);
@@ -185,6 +185,16 @@ sap.ui.define([
 	};
 
 	/**
+	 * Returns the user ID of the owner
+	 * @returns {string} ID of the owner
+	 *
+	 * @public
+	 */
+	Change.prototype.getOwnerId = function () {
+		return this._oDefinition.support ? this._oDefinition.support.user : "";
+	};
+
+	/**
 	 * Returns the text in the current language for a given id
 	 *
 	 * @param {string} sTextId
@@ -235,11 +245,7 @@ sap.ui.define([
 	 * @public
 	 */
 	Change.prototype.isReadOnly = function () {
-		var bIsReadOnly = this._isReadOnlyDueToLayer();
-		if (!bIsReadOnly) {
-			bIsReadOnly = this._isReadOnlyWhenNotKeyUser();
-		}
-		return bIsReadOnly;
+		return this._isReadOnlyDueToLayer() || this._isReadOnlyWhenNotKeyUser();
 	};
 
 	/**
@@ -250,20 +256,21 @@ sap.ui.define([
 	 * @private
 	 */
 	Change.prototype._isReadOnlyWhenNotKeyUser = function () {
-		var bIsReadOnly = false;
-		if (!this.isUserDependent()) {
-			var sReference = this.getDefinition().reference;
-			if (sReference) {
-				var oSettings = Settings.getInstanceOrUndef(sReference);
-				if (oSettings) {
-					var bIsKeyUser = oSettings.isKeyUser();
-					if (bIsKeyUser === false) {
-						bIsReadOnly = true;
-					}
-				}
-			}
+		if (this.isUserDependent()) {
+			return false; // the user always can edit its own changes
 		}
-		return bIsReadOnly;
+
+		var sReference = this.getDefinition().reference;
+		if (!sReference) {
+			return true; // without a reference the right to edit or delete a change cannot be determined
+		}
+
+		var oSettings = Settings.getInstanceOrUndef(sReference);
+		if (!oSettings) {
+			return true; // without settings the right to edit or delete a change cannot be determined
+		}
+
+		return !oSettings.isKeyUser(); // a key user can edit changes
 	};
 
 	/**
@@ -323,7 +330,7 @@ sap.ui.define([
 	};
 
 	/**
-	 * Determines if the Change has to be updated to the backend
+	 * Determines whether the change has to be updated on the back end
 	 * @returns {boolean} content of the change document has changed (change is in dirty state)
 	 * @private
 	 */
@@ -427,7 +434,7 @@ sap.ui.define([
 	};
 
 	/**
-	 * Set the response from the backend after saving the change
+	 * Set the response from the back end after saving the change
 	 * @param {object} oResponse the content of the change document
 	 *
 	 * @public
