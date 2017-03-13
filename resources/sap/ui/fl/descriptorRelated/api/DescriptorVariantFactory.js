@@ -27,7 +27,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.descriptorRelated.api.DescriptorVariant
 	 * @author SAP SE
-	 * @version 1.44.8
+	 * @version 1.44.9
 	 * @private
 	 * @sap-restricted
 	 */
@@ -220,7 +220,7 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.descriptorRelated.api.DescriptorVariantFactory
 	 * @author SAP SE
-	 * @version 1.44.8
+	 * @version 1.44.9
 	 * @private
 	 * @sap-restricted
 	 */
@@ -292,7 +292,11 @@ sap.ui.define([
 			_mResult = mResult;
 			return Settings.getInstance();
 		}).then( function(oSettings){
-			var mDescriptorVariantJSON = JSON.parse(_mResult.response);
+			var mDescriptorVariantJSON = _mResult.response;
+			if (!jQuery.isPlainObject(mDescriptorVariantJSON)) {
+				//Parse if needed. Happens if backend sends wrong content type
+				mDescriptorVariantJSON = JSON.parse(mDescriptorVariantJSON);
+			}
 			return Promise.resolve(new DescriptorVariant(null,mDescriptorVariantJSON,false,oSettings));
 		});
 	};
