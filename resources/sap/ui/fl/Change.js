@@ -16,7 +16,7 @@ sap.ui.define([
 	 * @param {object} oFile - file content and admin data
 	 * @experimental Since 1.25.0
 	 * @author SAP SE
-	 * @version 1.46.5
+	 * @version 1.46.6
 	 */
 	var Change = function (oFile) {
 		EventProvider.apply(this);
@@ -576,7 +576,9 @@ sap.ui.define([
 					if (oDependentSelector.idIsLocal) {
 						sId = oAppComponent.createId(oDependentSelector.id);
 					}
-					aDependentIds.push(sId);
+					if (aDependentIds.indexOf(sId) === -1) {
+						aDependentIds.push(sId);
+					}
 				});
 
 				this._aDependentIdList = aDependentIds;

@@ -178,12 +178,22 @@ jQuery.sap.require("sap.ui.fl.registry.Settings");
 		this.stub(Cache, "getChangesFillingCache").returns(Promise.resolve(oFileContent));
 		var oSettingsStoreInstanceStub = this.stub(Settings, "_storeInstance");
 
-
 		return this.oChangePersistence.getChangesForComponent().then(function() {
 			assert.ok(oSettingsStoreInstanceStub.calledOnce, "the _storeInstance function of the fl.Settings was called.");
 			var aPassedArguments = oSettingsStoreInstanceStub.getCall(0).args;
 			assert.equal(aPassedArguments[0], sComponentName, "the component name was passed to the function");
 			assert.equal(aPassedArguments[1], oFileContent, "the file content was passed to the function");
+		});
+	});
+
+	QUnit.test("getChangesForComponent shall also pass the returned data to the fl.Settings, but only if the data comes from the back end", function(assert) {
+		var sComponentName = this.sComponentName;
+		var oFileContent = {dummy:true};
+		this.stub(Cache, "getChangesFillingCache").returns(Promise.resolve(oFileContent));
+		var oSettingsStoreInstanceStub = this.stub(Settings, "_storeInstance");
+
+		return this.oChangePersistence.getChangesForComponent().then(function() {
+			assert.ok(oSettingsStoreInstanceStub.notCalled, "the _storeInstance function of the fl.Settings was not called.");
 		});
 	});
 
@@ -272,12 +282,18 @@ jQuery.sap.require("sap.ui.fl.registry.Settings");
 				"group1": [oChange3]
 			},
 			mDependencies: {
-				"fileNameChange2USERnamespace": [oChange1],
-				"fileNameChange3USERnamespace": [oChange2]
+				"fileNameChange2USERnamespace": {
+					"changeObject": oChange2,
+					"dependencies": ["fileNameChange1USERnamespace"]
+				},
+				"fileNameChange3USERnamespace": {
+					"changeObject": oChange3,
+					"dependencies": ["fileNameChange2USERnamespace"]
+				}
 			},
 			mDependentChangesOnMe: {
-				"fileNameChange1USERnamespace": [oChange2],
-				"fileNameChange2USERnamespace": [oChange3]
+				"fileNameChange1USERnamespace": ["fileNameChange2USERnamespace"],
+				"fileNameChange2USERnamespace": ["fileNameChange3USERnamespace"]
 			}
 		};
 
@@ -337,11 +353,14 @@ jQuery.sap.require("sap.ui.fl.registry.Settings");
 				"group1": [oChange0]
 			},
 			mDependencies: {
-				"fileNameChange2USERnamespace": [oChange1, oChange0],
+				"fileNameChange2USERnamespace": {
+					"changeObject": oChange2,
+					"dependencies": ["fileNameChange1USERnamespace", "fileNameChange0USERnamespace"]
+				}
 			},
 			mDependentChangesOnMe: {
-				"fileNameChange0USERnamespace": [oChange2],
-				"fileNameChange1USERnamespace": [oChange2]
+				"fileNameChange0USERnamespace": ["fileNameChange2USERnamespace"],
+				"fileNameChange1USERnamespace": ["fileNameChange2USERnamespace"]
 			}
 		};
 

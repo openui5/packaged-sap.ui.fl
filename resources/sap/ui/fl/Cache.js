@@ -15,7 +15,7 @@ sap.ui.define(["sap/ui/fl/Utils"], function (Utils) {
 	 * @alias sap.ui.fl.Cache
 	 * @experimental Since 1.25.0
 	 * @author SAP SE
-	 * @version 1.46.5
+	 * @version 1.46.6
 	 */
 	var Cache = function () {
 	};
@@ -104,7 +104,8 @@ sap.ui.define(["sap/ui/fl/Utils"], function (Utils) {
 					changes : [],
 					contexts : []
 				},
-				componentClassName: sComponentName
+				componentClassName: sComponentName,
+				dummy: true
 			});
 		}
 
