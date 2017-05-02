@@ -15,7 +15,7 @@ sap.ui.define([
 		 * @constructor
 		 * @alias sap.ui.fl.changeHandler.BaseRename
 		 * @author SAP SE
-		 * @version 1.46.6
+		 * @version 1.46.7
 		 * @experimental Since 1.46
 		 */
 		var BaseRename = {

@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @namespace
 	 * @name sap.ui.fl.descriptorRelated
 	 * @author SAP SE
-	 * @version 1.46.6
+	 * @version 1.46.7
 	 * @private
 	 * @sap-restricted
 	 */
@@ -27,7 +27,7 @@ sap.ui.define([
 	 * @namespace
 	 * @name sap.ui.fl.descriptorRelated.api
 	 * @author SAP SE
-	 * @version 1.46.6
+	 * @version 1.46.7
 	 * @private
 	 * @sap-restricted
 	 */
@@ -42,7 +42,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.descriptorRelated.api.DescriptorChange
 	 * @author SAP SE
-	 * @version 1.46.6
+	 * @version 1.46.7
 	 * @private
 	 * @sap-restricted
 	 */
@@ -119,12 +119,8 @@ sap.ui.define([
 	};
 
 	DescriptorChange.prototype._getChangeToSubmit = function() {
-		var mInlineChange = this._oInlineChange.getMap();
-
 		//create Change
-		this._mChangeFile.content = mInlineChange.content;
-		this._mChangeFile.texts = mInlineChange.texts;
-		var oChange = new Change(this._mChangeFile);
+		var oChange = new Change(this._getMap());
 
 		if ( this._sTransportRequest ) {
 			oChange.setRequest( this._sTransportRequest );
@@ -134,6 +130,26 @@ sap.ui.define([
 		return oChange;
 	};
 
+	DescriptorChange.prototype._getMap = function() {
+		var mInlineChange = this._oInlineChange.getMap();
+
+		this._mChangeFile.content = mInlineChange.content;
+		this._mChangeFile.texts = mInlineChange.texts;
+		return this._mChangeFile;
+	};
+
+	/**
+	 * Returns a copy of the JSON object of the descriptor change
+	 *
+	 * @return {object} copy of JSON object of the descriptor change
+	 *
+	 * @private
+	 * @sap-restricted
+	 */
+	DescriptorChange.prototype.getJson = function() {
+		return jQuery.extend(true, {}, this._getMap());
+	};
+
 //Descriptor LREP Change Factory
 	/**
 	 * Factory for Descriptor Changes
@@ -141,7 +157,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.descriptorRelated.api.DescriptorChangeFactory
 	 * @author SAP SE
-	 * @version 1.46.6
+	 * @version 1.46.7
 	 * @private
 	 * @sap-restricted
 	 */
