@@ -30,7 +30,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexController
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.46.7
+	 * @version 1.46.8
 	 */
 	var FlexController = function (sComponentName) {
 		this._oChangePersistence = undefined;
@@ -42,6 +42,7 @@ sap.ui.define([
 
 	FlexController.appliedChangesCustomDataKey = "sap.ui.fl:AppliedChanges";
 	FlexController.PENDING = "sap.ui.fl:PendingChange";
+	FlexController.PROCESSING = "sap.ui.fl:ProcessingChange";
 
 	/**
 	 * Sets the component name of the FlexController
@@ -616,7 +617,7 @@ sap.ui.define([
 	 * @param {object} oControl Control instance that is being created
 	 * @public
 	 */
-	FlexController.applyChangesOnControl = function (fnGetChangesMap, oAppComponent, oControl) {
+	FlexController.prototype.applyChangesOnControl = function (fnGetChangesMap, oAppComponent, oControl) {
 		var mChangesMap = fnGetChangesMap();
 		var mChanges = mChangesMap.mChanges;
 		var mDependencies = mChangesMap.mDependencies;
@@ -624,16 +625,16 @@ sap.ui.define([
 		var aChangesForControl = mChanges[oControl.getId()] || [];
 		aChangesForControl.forEach(function (oChange) {
 			if (!mDependencies[oChange.getKey()]) {
-				FlexController.prototype._checkTargetAndApplyChange(oChange, oControl, {modifier: JsControlTreeModifier, appComponent: oAppComponent});
-				FlexController.prototype._updateDependencies(mDependencies, mDependentChangesOnMe, oChange.getKey());
+				this._checkTargetAndApplyChange(oChange, oControl, {modifier: JsControlTreeModifier, appComponent: oAppComponent});
+				this._updateDependencies(mDependencies, mDependentChangesOnMe, oChange.getKey());
 			} else {
 				//saves the information whether a change was already processed but not applied.
 				mDependencies[oChange.getKey()][FlexController.PENDING] =
-					FlexController.prototype._checkTargetAndApplyChange.bind(FlexController, oChange, oControl, {modifier: JsControlTreeModifier, appComponent: oAppComponent});
+					this._checkTargetAndApplyChange.bind(this, oChange, oControl, {modifier: JsControlTreeModifier, appComponent: oAppComponent});
 			}
-		});
+		}.bind(this));
 
-		FlexController.prototype._processDependentQueue(mDependencies, mDependentChangesOnMe, oAppComponent);
+		this._processDependentQueue(mDependencies, mDependentChangesOnMe, oAppComponent);
 	};
 
 	FlexController.prototype._updateDependencies = function (mDependencies, mDependentChangesOnMe, sChangeKey) {
@@ -659,7 +660,8 @@ sap.ui.define([
 			for (var i = 0; i < Object.keys(mDependencies).length; i++) {
 				var sDependencyKey = Object.keys(mDependencies)[i];
 				var oDependency = mDependencies[sDependencyKey];
-				if (oDependency[FlexController.PENDING] && oDependency.dependencies.length === 0) {
+				if (oDependency[FlexController.PENDING] && oDependency.dependencies.length === 0 && !oDependency[FlexController.PROCESSING]) {
+					oDependency[FlexController.PROCESSING] = true;
 					oDependency[FlexController.PENDING]();
 					aDependenciesToBeDeleted.push(sDependencyKey);
 					aAppliedChanges.push(oDependency.changeObject.getKey());
@@ -671,25 +673,9 @@ sap.ui.define([
 			}
 
 			for (var k = 0; k < aAppliedChanges.length; k++) {
-				FlexController.prototype._updateDependencies(mDependencies, mDependentChangesOnMe, aAppliedChanges[k]);
+				this._updateDependencies(mDependencies, mDependentChangesOnMe, aAppliedChanges[k]);
 			}
 		} while (aAppliedChanges.length > 0);
-	};
-
-	/**
-	 * Get the changes and in case of existing changes, prepare the applyChanges function already with the changes.
-	 *
-	 * @param {object} oComponent Component instance that is currently loading
-	 * @param {object} vConfig configuration of loaded component
-	 * @public
-	 */
-	FlexController.getChangesAndPropagate = function (oComponent, vConfig) {
-		var oManifest = oComponent.getManifestObject();
-		ChangePersistenceFactory._getChangesForComponentAfterInstantiation(vConfig, oManifest, oComponent)
-			.then(function (fnGetChangesMap) {
-				oComponent.addPropagationListener(FlexController.applyChangesOnControl.bind(this, fnGetChangesMap, oComponent));
-			}
-		);
 	};
 
 	return FlexController;

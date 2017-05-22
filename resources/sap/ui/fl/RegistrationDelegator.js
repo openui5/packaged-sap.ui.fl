@@ -6,13 +6,13 @@
 
 // Provides object sap.ui.fl.RegistrationDelegator
 sap.ui.define([
-	"sap/ui/fl/FlexController",
+	"sap/ui/fl/FlexControllerFactory",
 	"sap/ui/core/Component",
 	"sap/ui/fl/registry/ChangeHandlerRegistration",
 	"sap/ui/fl/ChangePersistenceFactory",
 	"sap/ui/core/mvc/Controller",
 	"sap/ui/core/mvc/XMLView"
-], function(FlexController, Component, ChangeHandlerRegistration, ChangePersistenceFactory, MvcController, XMLView) {
+], function(FlexControllerFactory, Component, ChangeHandlerRegistration, ChangePersistenceFactory, MvcController, XMLView) {
 	"use strict";
 
 	/**
@@ -22,7 +22,7 @@ sap.ui.define([
 	 * @class
 	 * @constructor
 	 * @author SAP SE
-	 * @version 1.46.7
+	 * @version 1.46.8
 	 * @experimental Since 1.43.0
 	 */
 	var RegistrationDelegator = {
@@ -34,7 +34,7 @@ sap.ui.define([
 	 * @public
 	 */
 	RegistrationDelegator.registerChangesInComponent = function() {
-		Component._fnOnInstanceCreated = FlexController.getChangesAndPropagate.bind(FlexController);
+		Component._fnOnInstanceCreated = FlexControllerFactory.getChangesAndPropagate;
 	};
 
 	/**
