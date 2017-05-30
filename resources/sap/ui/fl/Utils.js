@@ -27,7 +27,7 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.Utils
 	 * @author SAP SE
-	 * @version 1.48.0
+	 * @version 1.48.1
 	 * @experimental Since 1.25.0
 	 */
 	var Utils = {
@@ -49,6 +49,9 @@ sap.ui.define([
 			},
 			warning: function (sMessage, sDetails, sComponent) {
 				jQuery.sap.log.warning(sMessage, sDetails, sComponent);
+			},
+			debug: function (sMessage, sDetails, sComponent) {
+				jQuery.sap.log.debug(sMessage, sDetails, sComponent);
 			}
 		},
 

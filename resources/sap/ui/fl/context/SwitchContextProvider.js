@@ -15,7 +15,7 @@ sap.ui.define(["sap/ui/fl/context/BaseContextProvider", "sap/ui/fl/Cache"], func
 	 * @extends sap.ui.fl.context.BaseContextProvider
 	 *
 	 * @author SAP SE
-	 * @version 1.48.0
+	 * @version 1.48.1
 	 *
 	 * @constructor
 	 * @private
