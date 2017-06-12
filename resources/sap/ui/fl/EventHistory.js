@@ -14,7 +14,7 @@ sap.ui.define(function () {
 	 * @alias sap.ui.fl.EventHistory
 	 * @experimental Since 1.47.0
 	 * @author SAP SE
-	 * @version 1.48.1
+	 * @version 1.48.2
 	 */
 	var EventHistory = function () {
 	};
@@ -22,6 +22,8 @@ sap.ui.define(function () {
 	EventHistory._aEventIds = [
 		"ControlForPersonalizationRendered"
 	];
+
+	EventHistory._aUnsubscribedEventIds = [];
 
 	EventHistory._oHistory = {};
 
@@ -32,8 +34,10 @@ sap.ui.define(function () {
 	 */
 	EventHistory.start = function () {
 		EventHistory._aEventIds.forEach(function(sEventId) {
-			sap.ui.getCore().getEventBus().subscribe("sap.ui", sEventId, EventHistory.saveEvent);
-			EventHistory._oHistory[sEventId] = [];
+			if (EventHistory._aUnsubscribedEventIds.indexOf(sEventId) === -1) {
+				sap.ui.getCore().getEventBus().subscribe("sap.ui", sEventId, EventHistory.saveEvent);
+				EventHistory._oHistory[sEventId] = [];
+			}
 		});
 	};
 
@@ -69,7 +73,14 @@ sap.ui.define(function () {
 	 */
 	EventHistory.getHistoryAndStop = function (sEventId) {
 		sap.ui.getCore().getEventBus().unsubscribe("sap.ui", sEventId, EventHistory.saveEvent);
-		return EventHistory._oHistory[sEventId];
+		EventHistory._addUnsubscribedEvent(sEventId);
+		return EventHistory._oHistory[sEventId] || [];
+	};
+
+	EventHistory._addUnsubscribedEvent = function(sEventId) {
+		if (EventHistory._aUnsubscribedEventIds.indexOf(sEventId) === -1) {
+			EventHistory._aUnsubscribedEventIds.push(sEventId);
+		}
 	};
 
 	return EventHistory;

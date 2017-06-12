@@ -16,7 +16,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.DefaultVariant
 	 * @author SAP SE
 	 *
-	 * @version 1.48.1
+	 * @version 1.48.2
 	 *
 	 * @experimental Since 1.25.0
 	 */

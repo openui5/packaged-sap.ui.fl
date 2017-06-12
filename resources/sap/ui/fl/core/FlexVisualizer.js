@@ -15,7 +15,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.core.FlexVisualizer
 	 *
 	 * @author SAP SE
-	 * @version 1.48.1
+	 * @version 1.48.2
 	 * @experimental Since 1.27.0
 	 *
 	 */
