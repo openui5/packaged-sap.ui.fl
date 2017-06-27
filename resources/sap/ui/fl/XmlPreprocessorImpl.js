@@ -22,7 +22,7 @@ sap.ui.define([
 	 * @class
 	 * @constructor
 	 * @author SAP SE
-	 * @version 1.48.2
+	 * @version 1.48.3
 	 * @experimental Since 1.27.0
 	 */
 	var XmlPreprocessorImpl = function(){
@@ -59,7 +59,7 @@ sap.ui.define([
 			}
 
 			var oAppComponent = Utils.getAppComponentForControl(oComponent);
-			var sFlexReference = Utils.getComponentName(oAppComponent);
+			var sFlexReference = Utils.getComponentClassName(oAppComponent);
 			var sAppVersion = Utils.getAppVersionFromManifest(oAppComponent.getManifest());
 			var oChangePersistence = ChangePersistenceFactory.getChangePersistenceForComponent(sFlexReference, sAppVersion);
 			return oChangePersistence.getCacheKey().then(function(sCacheKey){
@@ -98,7 +98,13 @@ sap.ui.define([
 	XmlPreprocessorImpl.getCacheKey = function(mProperties) {
 		var oComponent = sap.ui.getCore().getComponent(mProperties.componentId);
 		var oAppComponent = Utils.getAppComponentForControl(oComponent);
-		var sFlexReference = Utils.getComponentName(oAppComponent);
+
+		// no caching possible with startup parameter based variants
+		if (Utils.isVariantByStartupParameter(oAppComponent)) {
+			return Promise.resolve();
+		}
+
+		var sFlexReference = Utils.getComponentClassName(oAppComponent);
 		var sAppVersion = Utils.getAppVersionFromManifest(oAppComponent.getManifest());
 		var oChangePersistence = ChangePersistenceFactory.getChangePersistenceForComponent(sFlexReference, sAppVersion);
 		return oChangePersistence.getCacheKey();

@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @class
 	 * @constructor
 	 * @author SAP SE
-	 * @version 1.48.2
+	 * @version 1.48.3
 	 * @experimental Since 1.27.0
 	 */
 	var PreprocessorImpl = function(){
@@ -44,7 +44,7 @@ sap.ui.define([
 
 			var oComponent = sap.ui.component(sComponentId);
 			var oAppComponent = Utils.getAppComponentForControl(oComponent);
-			var sFlexReference = Utils.getComponentName(oAppComponent);
+			var sFlexReference = Utils.getComponentClassName(oAppComponent);
 			var sAppVersion = Utils.getAppVersionFromManifest(oAppComponent.getManifest());
 
 			var oChangePersistence = ChangePersistenceFactory.getChangePersistenceForComponent(sFlexReference, sAppVersion);

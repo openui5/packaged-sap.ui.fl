@@ -27,7 +27,7 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.Utils
 	 * @author SAP SE
-	 * @version 1.48.2
+	 * @version 1.48.3
 	 * @experimental Since 1.25.0
 	 */
 	var Utils = {
@@ -130,6 +130,18 @@ sap.ui.define([
 			}
 
 			return Utils.getComponentName(oAppComponent);
+		},
+
+		isVariantByStartupParameter: function (oControl) {
+			// determine UI5 component out of given control
+			if (oControl) {
+				var oAppComponent = this.getAppComponentForControl(oControl);
+				if (oAppComponent) {
+					return !!this._getComponentStartUpParameter(oAppComponent, "sap-app-id");
+				}
+			}
+
+			return false;
 		},
 
 		/**
