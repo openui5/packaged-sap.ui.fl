@@ -30,7 +30,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexController
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.44.17
+	 * @version 1.44.18
 	 */
 	var FlexController = function (sComponentName) {
 		this._oChangePersistence = undefined;
@@ -620,7 +620,7 @@ sap.ui.define([
 			for (var i = 0; i < Object.keys(mDependencies).length; i++) {
 				var sDependencyKey = Object.keys(mDependencies)[i];
 				var oDependency = mDependencies[sDependencyKey];
-				if (oDependency.dependencies.length === 0 && oDependency[FlexController.PENDING]) {
+				if (oDependency[FlexController.PENDING] && oDependency.dependencies.length === 0) {
 					oDependency[FlexController.PENDING]();
 					aDependenciesToBeDeleted.push(sDependencyKey);
 					aAppliedChanges.push(oDependency.changeObject.getKey());

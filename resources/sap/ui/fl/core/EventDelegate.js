@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.core.EventDelegate
 	 *
 	 * @author SAP SE
-	 * @version 1.44.17
+	 * @version 1.44.18
 	 * @experimental Since 1.27.0
 	 * @private
 	 *
