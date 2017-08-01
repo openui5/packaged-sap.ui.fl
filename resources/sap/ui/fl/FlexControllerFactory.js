@@ -15,7 +15,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexControllerFactory
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.48.4
+	 * @version 1.48.5
 	 */
 	var FlexControllerFactory = {};
 

@@ -15,7 +15,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.support.apps.contentbrowser.lrepConnector.LRepConnector
 	 * @author SAP SE
-	 * @version 1.48.4
+	 * @version 1.48.5
 	 * @experimental Since 1.45
 	 */
 	var LrepConnector = {};
