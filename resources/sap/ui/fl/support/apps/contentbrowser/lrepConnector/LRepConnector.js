@@ -15,7 +15,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.support.apps.contentbrowser.lrepConnector.LRepConnector
 	 * @author SAP SE
-	 * @version 1.48.5
+	 * @version 1.48.6
 	 * @experimental Since 1.45
 	 */
 	var LrepConnector = {};
@@ -241,6 +241,7 @@ sap.ui.define([
 		jQuery.ajax({
 			url: sUrl,
 			contentType: "text/plain",
+			dataType: "text",
 			data: oData,
 			beforeSend: function (oRequest) {
 				oRequest.setRequestHeader("X-CSRF-Token", oXcsrfToken);

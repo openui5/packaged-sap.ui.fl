@@ -15,7 +15,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.ChangePersistenceFactory
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.48.5
+	 * @version 1.48.6
 	 */
 	var ChangePersistenceFactory = {};
 
@@ -32,16 +32,16 @@ sap.ui.define([
 	ChangePersistenceFactory.getChangePersistenceForComponent = function(sComponentName, sAppVersion) {
 		var oChangePersistence;
 		sAppVersion = sAppVersion || Utils.DEFAULT_APP_VERSION;
-		var oComponent = {
-			name : sComponentName,
-			appVersion : sAppVersion
-		};
 
 		if (!ChangePersistenceFactory._instanceCache[sComponentName]) {
 			ChangePersistenceFactory._instanceCache[sComponentName] = {};
 		}
 		oChangePersistence = ChangePersistenceFactory._instanceCache[sComponentName][sAppVersion];
 		if (!oChangePersistence) {
+			var oComponent = {
+				name : sComponentName,
+				appVersion : sAppVersion
+			};
 			oChangePersistence = new ChangePersistence(oComponent);
 			ChangePersistenceFactory._instanceCache[sComponentName][sAppVersion] = oChangePersistence;
 		}
