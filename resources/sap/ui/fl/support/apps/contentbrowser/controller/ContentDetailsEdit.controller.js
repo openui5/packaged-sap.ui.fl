@@ -18,7 +18,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.support.apps.contentbrowser.controller.ContentDetailsEdit
 	 * @author SAP SE
-	 * @version 1.50.0
+	 * @version 1.50.1
 	 * @experimental Since 1.45
 	 */
 	return Controller.extend("sap.ui.fl.support.apps.contentbrowser.controller.ContentDetailsEdit", {
@@ -116,9 +116,10 @@ sap.ui.define([
 			var oContentData = oSelectedContentModel.getData();
 			var sLayer;
 
-			oContentData.metadata.forEach(function (oMetadata) {
+			oContentData.metadata.some(function (oMetadata) {
 				if (oMetadata.name === "layer") {
 					sLayer = oMetadata.value;
+					return true;
 				}
 			});
 

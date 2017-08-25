@@ -21,7 +21,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.support.apps.contentbrowser.controller.ContentDetails
 	 * @author SAP SE
-	 * @version 1.50.0
+	 * @version 1.50.1
 	 * @experimental Since 1.45
 	 */
 	return Controller.extend("sap.ui.fl.support.apps.contentbrowser.controller.ContentDetails", {
@@ -193,11 +193,13 @@ sap.ui.define([
 		_deleteFile: function () {
 			var oSelectedContentModel = this.getView().getModel("selectedContent");
 			var oContentData = oSelectedContentModel.getData();
-			var sLayer = "";
+			var sSelectedLayer = oContentData.layer;
+			var sContentLayer = "";
 
-			oContentData.metadata.forEach(function (mMetadata) {
+			oContentData.metadata.some(function (mMetadata) {
 				if (mMetadata.name === "layer") {
-					sLayer = mMetadata.value;
+					sContentLayer = mMetadata.value;
+					return true;
 				}
 			});
 
@@ -207,9 +209,9 @@ sap.ui.define([
 
 			var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
 
-			return LRepConnector.deleteFile(sLayer, sNamespace, sFileName, sFileType).then(function () {
+			return LRepConnector.deleteFile(sContentLayer, sNamespace, sFileName, sFileType).then(function () {
 				oRouter.navTo("LayerContentMaster", {
-					"layer": sLayer,
+					"layer": sSelectedLayer,
 					"namespace": HtmlEscapeUtils.escapeSlashes(sNamespace)
 				});
 			});

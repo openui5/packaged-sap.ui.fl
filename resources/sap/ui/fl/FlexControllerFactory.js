@@ -15,7 +15,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexControllerFactory
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.50.0
+	 * @version 1.50.1
 	 */
 	var FlexControllerFactory = {};
 
@@ -75,13 +75,11 @@ sap.ui.define([
 		if (Utils.isApplication(oManifest)) {
 			var oFlexController = FlexControllerFactory.createForControl(oComponent, oManifest);
 			ChangePersistenceFactory._getChangesForComponentAfterInstantiation(vConfig, oManifest, oComponent)
-				.then(function (fnGetChangesMap) {
-						oComponent.addPropagationListener(oFlexController.applyChangesOnControl.bind(oFlexController, fnGetChangesMap, oComponent));
-						var oData = oFlexController.getVariantModelData();
-						if (oData) {
-							oComponent.setModel(new VariantModel(oData, oFlexController, oComponent), "$FlexVariants");
-						}
-				});
+			.then(function (fnGetChangesMap) {
+				oComponent.addPropagationListener(oFlexController.getBoundApplyChangesOnControl(fnGetChangesMap, oComponent));
+				var oData = oFlexController.getVariantModelData() || {};
+				oComponent.setModel(new VariantModel(oData, oFlexController, oComponent), "$FlexVariants");
+			});
 		}
 	};
 
