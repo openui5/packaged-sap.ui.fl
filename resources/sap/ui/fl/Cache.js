@@ -15,7 +15,7 @@ sap.ui.define(["sap/ui/fl/Utils"], function (Utils) {
 	 * @alias sap.ui.fl.Cache
 	 * @experimental Since 1.25.0
 	 * @author SAP SE
-	 * @version 1.44.19
+	 * @version 1.44.20
 	 */
 	var Cache = function () {
 	};
@@ -85,6 +85,16 @@ sap.ui.define(["sap/ui/fl/Utils"], function (Utils) {
 			return oLrepConnector.loadChanges(sComponentName, mPropertyBag);
 		}
 
+		var oCacheEntry = Cache._entries[sComponentName];
+
+		if (!oCacheEntry) {
+			oCacheEntry = Cache._entries[sComponentName] = {};
+		}
+
+		if (oCacheEntry.promise) {
+			return oCacheEntry.promise;
+		}
+
 		// in case of no changes present according to async hints
 		if (mPropertyBag && mPropertyBag.cacheKey === "<NO CHANGES>") {
 			return Promise.resolve({
@@ -94,16 +104,6 @@ sap.ui.define(["sap/ui/fl/Utils"], function (Utils) {
 				},
 				componentClassName: sComponentName
 			});
-		}
-
-		var oCacheEntry = Cache._entries[sComponentName];
-
-		if (!oCacheEntry) {
-			oCacheEntry = Cache._entries[sComponentName] = {};
-		}
-
-		if (oCacheEntry.promise) {
-			return oCacheEntry.promise;
 		}
 
 		var currentLoadChanges = oLrepConnector.loadChanges(sComponentName, mPropertyBag).then(function (mChanges) {

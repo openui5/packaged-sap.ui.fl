@@ -30,7 +30,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexController
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.44.19
+	 * @version 1.44.20
 	 */
 	var FlexController = function (sComponentName) {
 		this._oChangePersistence = undefined;
@@ -364,7 +364,7 @@ sap.ui.define([
 			} catch (ex) {
 				this._setMergeError(true);
 				Utils.log.error("Change could not be applied. Merge error detected.");
-				throw ex;
+				return;
 			}
 
 			if (oAppliedChangeCustomData) {
