@@ -16,7 +16,7 @@ sap.ui.define([
 	 * @param {object} oFile - file content and admin data
 	 * @experimental Since 1.25.0
 	 * @author SAP SE
-	 * @version 1.48.8
+	 * @version 1.48.9
 	 */
 	var Change = function (oFile) {
 		EventProvider.apply(this);

@@ -20,7 +20,7 @@ sap.ui.define([
 	 * @private
 	 * @sap-restricted
 	 * @author SAP SE
-	 * @version 1.48.8
+	 * @version 1.48.9
 	 */
 	var Connector = function(mParameters) {
 		this._initClientParam();
@@ -35,7 +35,7 @@ sap.ui.define([
 		return new Connector(mParameters);
 	};
 
-	Connector.prototype.DEFAULT_CONTENT_TYPE = "application/json";
+	Connector.prototype.DEFAULT_CONTENT_TYPE = "application/json; charset=utf-8";
 	Connector.prototype._sClient = undefined;
 	Connector.prototype._sLanguage = undefined;
 	Connector.prototype._aSentRequestListeners = [];
@@ -148,6 +148,8 @@ sap.ui.define([
 		var mOptions;
 		if (!sContentType) {
 			sContentType = this.DEFAULT_CONTENT_TYPE;
+		} else if (sContentType.indexOf("charset") === -1) {
+			sContentType += "; charset=utf-8";
 		}
 
 		mOptions = jQuery.extend(true, this._getDefaultHeader(), {
@@ -163,7 +165,7 @@ sap.ui.define([
 			}
 		});
 
-		if (oData && mOptions.contentType === "application/json") {
+		if (oData && mOptions.contentType.indexOf("application/json") === 0) {
 			mOptions.dataType = "json";
 			if (typeof oData === "object") {
 				mOptions.data = JSON.stringify(oData);
