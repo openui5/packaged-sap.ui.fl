@@ -13,7 +13,7 @@ sap.ui.define("sap/ui/fl/support/apps/contentbrowser/utils/HtmlEscapeUtils", fun
 	 * @constructor
 	 * @alias sap.ui.fl.support.apps.contentbrowser.utils.HtmlEscapeUtils
 	 * @author SAP SE
-	 * @version 1.50.1
+	 * @version 1.50.2
 	 * @experimental Since 1.45
 	 */
 	var HtmlEscapeUtils = {};
