@@ -27,7 +27,7 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.Utils
 	 * @author SAP SE
-	 * @version 1.50.2
+	 * @version 1.50.3
 	 * @experimental Since 1.25.0
 	 */
 	var Utils = {
@@ -37,6 +37,7 @@ sap.ui.define([
 		_sTopLayer : aLayers[aLayers.length - 1],
 		_sMaxLayer : aLayers[aLayers.length - 1],
 		DEFAULT_APP_VERSION : "DEFAULT_APP_VERSION",
+		APP_ID_AT_DESIGN_TIME : "${project.artifactId}",
 		/**
 		 * log object exposes available log functions
 		 *
@@ -892,7 +893,11 @@ sap.ui.define([
 					}
 				}
 				if (oManifest.getEntry("sap.app") && oManifest.getEntry("sap.app").id) {
-					return oManifest.getEntry("sap.app").id + ".Component";
+					var sAppId = oManifest.getEntry("sap.app").id;
+					if (sAppId === Utils.APP_ID_AT_DESIGN_TIME && oManifest.getComponentName) {
+						sAppId = oManifest.getComponentName();
+					}
+					return sAppId + ".Component";
 				}
 			}
 			this.log.warning("No Manifest received.");
