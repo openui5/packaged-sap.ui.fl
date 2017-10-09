@@ -7,9 +7,8 @@
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
 	"sap/ui/fl/support/apps/contentbrowser/lrepConnector/LRepConnector",
-	"sap/ui/fl/support/apps/contentbrowser/utils/HtmlEscapeUtils",
 	"sap/ui/fl/support/apps/contentbrowser/utils/DataUtils"
-], function (Controller, LRepConnector, HtmlEscapeUtils, DataUtils) {
+], function (Controller, LRepConnector, DataUtils) {
 	"use strict";
 
 	/**
@@ -18,7 +17,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.support.apps.contentbrowser.controller.ContentDetailsEdit
 	 * @author SAP SE
-	 * @version 1.48.9
+	 * @version 1.48.10
 	 * @experimental Since 1.45
 	 */
 	return Controller.extend("sap.ui.fl.support.apps.contentbrowser.controller.ContentDetailsEdit", {
@@ -59,7 +58,7 @@ sap.ui.define([
 
 			var oModelData = {};
 			oModelData.layer = mRouteArguments.layer;
-			oModelData.namespace = HtmlEscapeUtils.unescapeSlashes(mRouteArguments.namespace);
+			oModelData.namespace = decodeURIComponent(mRouteArguments.namespace);
 			oModelData.fileName = mRouteArguments.fileName;
 			oModelData.fileType = mRouteArguments.fileType;
 
@@ -125,7 +124,7 @@ sap.ui.define([
 
 			return LRepConnector.saveFile(
 				sLayer,
-				HtmlEscapeUtils.escapeSlashes(oContentData.namespace),
+				oContentData.namespace,
 				oContentData.fileName,
 				oContentData.fileType,
 				oContentData.data
@@ -153,7 +152,7 @@ sap.ui.define([
 
 			oRouter.navTo("ContentDetailsFlip", {
 				"layer": oContentData.layer,
-				"namespace": HtmlEscapeUtils.escapeSlashes(oContentData.namespace),
+				"namespace": encodeURIComponent(oContentData.namespace),
 				"fileName": oContentData.fileName,
 				"fileType": oContentData.fileType
 			});
