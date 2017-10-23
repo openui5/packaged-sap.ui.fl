@@ -14,7 +14,7 @@ sap.ui.define(function () {
 	 * @alias sap.ui.fl.EventHistory
 	 * @experimental Since 1.47.0
 	 * @author SAP SE
-	 * @version 1.48.10
+	 * @version 1.48.11
 	 */
 	var EventHistory = function () {
 	};

@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @class
 	 * @constructor
 	 * @author SAP SE
-	 * @version 1.48.10
+	 * @version 1.48.11
 	 * @experimental Since 1.27.0
 	 * @implements sap.ui.core.mvc.View.Preprocessor
 	 */

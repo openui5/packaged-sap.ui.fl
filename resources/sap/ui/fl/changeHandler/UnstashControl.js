@@ -13,7 +13,7 @@ sap.ui.define([
 	 * Change handler for unstashing of a control.
 	 * @alias sap.ui.fl.changeHandler.UnstashControl
 	 * @author SAP SE
-	 * @version 1.48.10
+	 * @version 1.48.11
 	 * @experimental Since 1.27.0
 	 */
 	var UnstashControl = { };
@@ -38,7 +38,7 @@ sap.ui.define([
 			var sTargetAggregation = mContent.parentAggregationName;
 			var oTargetParent = oModifier.getParent(oControl);
 			oModifier.removeAggregation(oTargetParent, sTargetAggregation, oControl);
-			oModifier.insertAggregation(oTargetParent, sTargetAggregation, oControl, mContent.index);
+			oModifier.insertAggregation(oTargetParent, sTargetAggregation, oControl, mContent.index, mPropertyBag.view);
 		}
 		return true;
 	};

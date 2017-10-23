@@ -31,7 +31,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexController
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.48.10
+	 * @version 1.48.11
 	 */
 	var FlexController = function (sComponentName, sAppVersion) {
 		this._oChangePersistence = undefined;
@@ -402,7 +402,7 @@ sap.ui.define([
 				oChangeHandler.applyChange(oChange, oControl, mPropertyBag);
 			} catch (ex) {
 				this._setMergeError(true);
-				Utils.log.error("Change could not be applied. Merge error detected.");
+				Utils.log.error("Change could not be applied. Merge error detected.", ex.stack || "");
 				return;
 			}
 
@@ -454,7 +454,7 @@ sap.ui.define([
 			oCustomData = oModifier.createControl("sap.ui.core.CustomData", oAppComponent, oView);
 			oModifier.setProperty(oCustomData, "key", FlexController.appliedChangesCustomDataKey);
 			oModifier.setProperty(oCustomData, "value", sValue);
-			oModifier.insertAggregation(oControl, "customData", oCustomData, 0, oView, true);
+			oModifier.insertAggregation(oControl, "customData", oCustomData, 0, oView);
 		}
 	};
 
