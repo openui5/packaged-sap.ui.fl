@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.registry.SimpleChanges
 	 *
 	 * @author SAP SE
-	 * @version 1.48.11
+	 * @version 1.48.12
 	 * @experimental Since 1.27.0
 	 *
 	 */
