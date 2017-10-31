@@ -21,7 +21,7 @@ function(
 	 *
 	 * @alias sap.ui.fl.changeHandler.MoveControls
 	 * @author SAP SE
-	 * @version 1.50.4
+	 * @version 1.50.5
 	 * @experimental Since 1.46
 	 */
 	var MoveControls = { };
@@ -203,8 +203,8 @@ function(
 				});
 			}
 
-			oModifier.removeAggregation(oSourceParent, sSourceAggregation, oMovedElement, oView);
-			oModifier.insertAggregation(oTargetParent, sTargetAggregation, oMovedElement, iInsertIndex);
+			oModifier.removeAggregation(oSourceParent, sSourceAggregation, oMovedElement);
+			oModifier.insertAggregation(oTargetParent, sTargetAggregation, oMovedElement, iInsertIndex, oView);
 		}, this);
 
 		oChange.setRevertData(aRevertData);
@@ -257,8 +257,8 @@ function(
 				iInsertIndex = aRevertData[iElementIndex].index;
 			}
 
-			oModifier.removeAggregation(oTargetParent, sTargetAggregation, oMovedElement, oView);
-			oModifier.insertAggregation(oSourceParent, sSourceAggregation, oMovedElement, iInsertIndex);
+			oModifier.removeAggregation(oTargetParent, sTargetAggregation, oMovedElement);
+			oModifier.insertAggregation(oSourceParent, sSourceAggregation, oMovedElement, iInsertIndex, oView);
 		}, this);
 
 		oChange.resetRevertData();
