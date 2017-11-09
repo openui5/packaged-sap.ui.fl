@@ -306,7 +306,7 @@ sap.ui.define([
 			};
 			aChanges.forEach(this._addChangeAndUpdateDependencies.bind(this, oComponent));
 
-			if (sap.ui.getCore().getConfiguration().getDebug()) {
+			if (Utils.isDebugEnabled()) {
 				this._mChangesInitial = jQuery.extend(true, {}, this._mChanges);
 			}
 
@@ -490,7 +490,7 @@ sap.ui.define([
 				saveAction.then(this._updateCacheAndDirtyState(aDirtyChanges, oDirtyChange, bSkipUpdateCache));
 
 				return saveAction;
-			}.bind(this), Promise.resolve());
+			}.bind(this), Promise.resolve(true));
 		}
 	};
 

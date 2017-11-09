@@ -26,7 +26,7 @@ sap.ui.define([
 	 * @class Variant class.
 	 * @extends sap.ui.base.ManagedObject
 	 * @author SAP SE
-	 * @version 1.52.0
+	 * @version 1.52.1
 	 * @alias sap.ui.fl.Variant
 	 * @experimental Since 1.52.0
 	 */
@@ -505,16 +505,6 @@ sap.ui.define([
 		var sFileType = this.getDefinition().content.fileType;
 
 		return sLayer + "/" + sNamespace + "/" + sFileName + "." + sFileType;
-	};
-
-	/**
-	 * Returns the variant key
-	 *
-	 * @returns {String} Variant key of the file which is a unique concatenation of fileName, layer and namespace
-	 * @public
-	 */
-	Variant.prototype.getKey = function () {
-		return this._oDefinition.content.fileName + this._oDefinition.content.layer + this._oDefinition.content.namespace;
 	};
 
 	/**

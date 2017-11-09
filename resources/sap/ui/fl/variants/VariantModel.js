@@ -15,7 +15,7 @@ sap.ui.define([
 	 * @class Variant Model implementation for JSON format
 	 * @extends sap.ui.model.json.JSONModel
 	 * @author SAP SE
-	 * @version 1.52.0
+	 * @version 1.52.1
 	 * @param {object} oData either the URL where to load the JSON from or a JS object
 	 * @param {object} oFlexController the FlexController instance for the component which uses the variant model
 	 * @param {object} oComponent Component instance that is currently loading
@@ -135,12 +135,17 @@ sap.ui.define([
 		return this.oVariantController.removeChangeFromVariant(oChange, sVariantManagementReference, sVariantReference);
 	};
 
-	VariantModel.prototype._duplicateVariant = function(sNewVariantReference, sSourceVariantReference) {
-		var oSourceVariant = this.getVariant(sSourceVariantReference);
+	VariantModel.prototype._duplicateVariant = function(mPropertyBag) {
+		var sNewVariantReference = mPropertyBag.newVariantReference,
+			sSourceVariantReference = mPropertyBag.sourceVariantReference,
+			oSourceVariant = this.getVariant(sSourceVariantReference);
 
 		var oDuplicateVariant = {
 			content: {},
-			changes: JSON.parse(JSON.stringify(oSourceVariant.changes))
+			changes: JSON.parse(JSON.stringify(oSourceVariant.changes)),
+			variantChanges: {
+				setTitle: []
+			}
 		};
 
 		var iCurrentLayerComp = Utils.isLayerAboveCurrentLayer(oSourceVariant.content.layer);
@@ -154,6 +159,8 @@ sap.ui.define([
 				} else if (iCurrentLayerComp === -1)  {
 					oDuplicateVariant.content[sKey] = sSourceVariantReference;
 				}
+			} else if (sKey === "layer") {
+				oDuplicateVariant.content[sKey] = mPropertyBag.layer;
 			} else if (sKey === "title") {
 				oDuplicateVariant.content[sKey] = oSourceVariant.content[sKey] + " Copy";
 			} else {
@@ -193,7 +200,7 @@ sap.ui.define([
 	 * @private
 	 */
 	VariantModel.prototype._copyVariant = function(mPropertyBag) {
-		var oDuplicateVariantData = this._duplicateVariant(mPropertyBag.newVariantReference, mPropertyBag.sourceVariantReference);
+		var oDuplicateVariantData = this._duplicateVariant(mPropertyBag);
 		var sVariantManagementReference = BaseTreeModifier.getSelector(mPropertyBag.variantManagementControl, mPropertyBag.appComponent).id;
 		var oVariantModelData = {
 			author: mPropertyBag.layer,
@@ -217,17 +224,16 @@ sap.ui.define([
 
 		//Variant Model
 		this.oData[sVariantManagementReference].variants.splice(iIndex, 0, oVariantModelData);
-		this.updateCurrentVariant(sVariantManagementReference, oVariant.getId());
-
-		this.checkUpdate(); /*For VariantManagement Control update*/
-
-		return oVariant;
+		return this.updateCurrentVariant(sVariantManagementReference, oVariant.getId()).then( function () {
+			this.checkUpdate(); /*For VariantManagement Control update*/
+			return oVariant;
+		}.bind(this));
 	};
 
 	VariantModel.prototype._removeVariant = function(oVariant, sSourceVariantFileName, sVariantManagementReference) {
 		var aChangesToBeDeleted = this.oFlexController._oChangePersistence.getDirtyChanges().filter(function(oChange) {
 			return (oChange.getVariantReference && oChange.getVariantReference() === oVariant.getId()) ||
-					oChange.getKey() === oVariant.getKey();
+					oChange.getId() === oVariant.getId();
 		});
 		aChangesToBeDeleted.forEach( function(oChange) {
 			this.oFlexController._oChangePersistence.deleteChange(oChange);
@@ -235,9 +241,9 @@ sap.ui.define([
 		var iIndex =  this.oVariantController.removeVariantFromVariantManagement(oVariant, sVariantManagementReference);
 
 		this.oData[sVariantManagementReference].variants.splice(iIndex, 1);
-		this.updateCurrentVariant(sVariantManagementReference, sSourceVariantFileName);
-
-		this.checkUpdate(); /*For VariantManagement Control update*/
+		return this.updateCurrentVariant(sVariantManagementReference, sSourceVariantFileName).then( function () {
+			this.checkUpdate(); /*For VariantManagement Control update*/
+		}.bind(this));
 	};
 
 	VariantModel.prototype._setVariantProperties = function(sVariantManagementReference, mPropertyBag, bAddChange) {

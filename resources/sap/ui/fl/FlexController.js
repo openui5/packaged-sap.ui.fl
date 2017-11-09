@@ -32,7 +32,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexController
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.52.0
+	 * @version 1.52.1
 	 */
 	var FlexController = function (sComponentName, sAppVersion) {
 		this._oChangePersistence = undefined;
@@ -666,7 +666,7 @@ sap.ui.define([
 				return false;
 			}.bind(this));
 		}
-		return new Utils.FakePromise();
+		return new Utils.FakePromise(true);
 	};
 
 	FlexController.prototype._removeFromAppliedChangesAndMaybeRevert = function(oChange, oControl, mPropertyBag, bRevert) {
