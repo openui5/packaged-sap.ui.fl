@@ -15,7 +15,7 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 	 * @alias sap.ui.fl.Cache
 	 * @experimental Since 1.25.0
 	 * @author SAP SE
-	 * @version 1.52.1
+	 * @version 1.52.2
 	 */
 	var Cache = function () {
 	};
@@ -25,6 +25,8 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 	Cache._entries = {};
 
 	Cache._switches = {};
+
+	Cache._oFlexDataPromise = undefined;
 
 	/**
 	 * Get the list of the switched-on business functions from the flex response
@@ -57,6 +59,17 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 	 */
 	Cache.setActive = function (bActive) {
 		Cache._isOn = bActive;
+	};
+
+	/**
+	 * Returns the last cached flex data request promise
+	 *
+	 * @returns {Promise} Promise of a flex data request
+	 *
+	 * @protected
+	 */
+	Cache.getFlexDataPromise = function () {
+		return Cache._oFlexDataPromise;
 	};
 
 	/**
@@ -229,6 +242,7 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 		});
 
 		oCacheEntry.promise = currentLoadChanges;
+		Cache._oFlexDataPromise = currentLoadChanges;
 
 		return currentLoadChanges;
 	};
