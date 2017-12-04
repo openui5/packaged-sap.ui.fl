@@ -18,7 +18,7 @@ sap.ui.define([
 	 * @namespace
 	 * @name sap.ui.fl.descriptorRelated
 	 * @author SAP SE
-	 * @version 1.48.14
+	 * @version 1.48.15
 	 * @private
 	 * @sap-restricted
 	 */
@@ -28,7 +28,7 @@ sap.ui.define([
 	 * @namespace
 	 * @name sap.ui.fl.descriptorRelated.api
 	 * @author SAP SE
-	 * @version 1.48.14
+	 * @version 1.48.15
 	 * @private
 	 * @sap-restricted
 	 */
@@ -43,7 +43,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.descriptorRelated.api.DescriptorChange
 	 * @author SAP SE
-	 * @version 1.48.14
+	 * @version 1.48.15
 	 * @private
 	 * @sap-restricted
 	 */
@@ -159,7 +159,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.descriptorRelated.api.DescriptorChangeFactory
 	 * @author SAP SE
-	 * @version 1.48.14
+	 * @version 1.48.15
 	 * @private
 	 * @sap-restricted
 	 */
