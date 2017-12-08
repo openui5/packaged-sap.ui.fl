@@ -15,11 +15,12 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.Utils
 	 * @author SAP SE
-	 * @version 1.44.24
+	 * @version 1.44.25
 	 * @experimental Since 1.25.0
 	 */
 	var Utils = {
-		APP_ID_AT_DESIGN_TIME : "${project.artifactId}",
+		APP_ID_AT_DESIGN_TIME : "${pro" + "ject.art" + "ifactId}", //avoid replaced by content of ${project.artifactId} placeholder at build steps
+
 		/**
 		 * log object exposes available log functions
 		 *
