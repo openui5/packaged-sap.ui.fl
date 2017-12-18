@@ -14,14 +14,14 @@ sap.ui.define([
 	 * @namespace
 	 * @name sap.ui.fl
 	 * @author SAP SE
-	 * @version 1.52.2
+	 * @version 1.52.3
 	 * @private
 	 * @sap-restricted
 	 */
 
 	sap.ui.getCore().initLibrary({
 		name: "sap.ui.fl",
-		version: "1.52.2",
+		version: "1.52.3",
 		dependencies: [
 			"sap.ui.core", "sap.m"
 		],
