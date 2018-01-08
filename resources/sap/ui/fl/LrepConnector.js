@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2018 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -20,7 +20,7 @@ sap.ui.define([
 	 * @private
 	 * @sap-restricted
 	 * @author SAP SE
-	 * @version 1.48.16
+	 * @version 1.48.17
 	 */
 	var Connector = function(mParameters) {
 		this._initClientParam();
@@ -437,6 +437,7 @@ sap.ui.define([
 				return {
 					changes: oResponse.response,
 					componentClassName: sComponentClassName,
+					messagebundle: oResponse.response.messagebundle,
 					etag: oResponse.etag
 				};
 			}, function(oError) {
