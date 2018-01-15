@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2017 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2018 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -32,7 +32,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexController
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.52.3
+	 * @version 1.52.4
 	 */
 	var FlexController = function (sComponentName, sAppVersion) {
 		this._oChangePersistence = undefined;
@@ -1168,7 +1168,9 @@ sap.ui.define([
 		this._updateControlsDependencies(mDependencies);
 		Object.keys(mDependencies).forEach(function(sDependencyKey) {
 			var oDependency = mDependencies[sDependencyKey];
-			if (oDependency[FlexController.PENDING] && oDependency.dependencies.length === 0 && !oDependency[FlexController.PROCESSING]) {
+			if (oDependency[FlexController.PENDING] && oDependency.dependencies.length === 0  &&
+				!(oDependency.controlsDependencies && oDependency.controlsDependencies.length > 0) &&
+				!oDependency[FlexController.PROCESSING]) {
 				oDependency[FlexController.PROCESSING] = true;
 				aPromises.push(
 					function() {
