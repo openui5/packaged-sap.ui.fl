@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @param {string} [sStableIdPropertyName='id'] the stable id
 	 * @alias sap.ui.fl.Persistence
 	 * @author SAP SE
-	 * @version 1.48.17
+	 * @version 1.48.18
 	 * @experimental Since 1.25.0
 	 */
 	var Persistence = function(oControl, sStableIdPropertyName) {

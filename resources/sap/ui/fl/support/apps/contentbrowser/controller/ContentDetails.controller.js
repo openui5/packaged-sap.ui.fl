@@ -20,7 +20,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.support.apps.contentbrowser.controller.ContentDetails
 	 * @author SAP SE
-	 * @version 1.48.17
+	 * @version 1.48.18
 	 * @experimental Since 1.45
 	 */
 	return Controller.extend("sap.ui.fl.support.apps.contentbrowser.controller.ContentDetails", {
