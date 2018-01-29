@@ -24,7 +24,7 @@ sap.ui.define([
 		 *
 		 * @abstract
 		 * @extends sap.ui.core.support.Plugin
-		 * @version 1.52.4
+		 * @version 1.52.5
 		 * @sap-restricted
 		 * @constructor
 		 * @private

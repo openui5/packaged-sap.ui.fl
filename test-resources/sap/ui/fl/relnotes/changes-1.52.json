@@ -98,11 +98,11 @@
       }
     ]
   },
-  "1.52.4": {
+  "1.52.5": {
     "date": "January 2018",
     "notes": [
       {
-        "id": "3364e3c99e267fc2839b6f3b17283a922e683be0",
+        "id": "807e0f5c570cc60554ee27d9a5b2cfba8c605bf4",
         "type": "FIX",
         "text": " sap.ui.fl - controlDependencies check bugfix",
         "references": []
