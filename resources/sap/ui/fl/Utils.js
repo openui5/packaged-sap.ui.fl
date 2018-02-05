@@ -27,7 +27,7 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.Utils
 	 * @author SAP SE
-	 * @version 1.48.18
+	 * @version 1.48.19
 	 * @experimental Since 1.25.0
 	 */
 	var Utils = {

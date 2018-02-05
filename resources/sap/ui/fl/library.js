@@ -15,7 +15,7 @@ sap.ui.define(["sap/ui/fl/RegistrationDelegator"
 	 * @namespace
 	 * @name sap.ui.fl
 	 * @author SAP SE
-	 * @version 1.48.18
+	 * @version 1.48.19
 	 * @private
 	 * @sap-restricted
 	 *
@@ -23,7 +23,7 @@ sap.ui.define(["sap/ui/fl/RegistrationDelegator"
 
 	sap.ui.getCore().initLibrary({
 		name:"sap.ui.fl",
-		version:"1.48.18",
+		version:"1.48.19",
 		dependencies:["sap.ui.core","sap.m"],
 		noLibraryCSS: true,
 		extensions: {
