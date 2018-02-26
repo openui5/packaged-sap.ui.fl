@@ -13,7 +13,7 @@ sap.ui.define([
 	 * Change handler for stashing of a control.
 	 * @alias sap.ui.fl.changeHandler.StashControl
 	 * @author SAP SE
-	 * @version 1.44.27
+	 * @version 1.44.28
 	 * @experimental Since 1.27.0
 	 */
 	var StashControl = { };
