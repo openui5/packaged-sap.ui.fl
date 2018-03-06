@@ -266,7 +266,7 @@ sap.ui.define(["sap/ui/fl/changeHandler/BaseTreeModifier", "sap/ui/fl/Utils"], f
 				}
 
 				// we need all controls in the aggregation
-				aControlsInAggregation = this.getAggregation(oParent, oControl.sParentAggregationName);
+				aControlsInAggregation = this.getAggregation(oParent, this.getParentAggregationName(oControl));
 
 				// if aControls is an array:
 				if (Array.isArray(aControlsInAggregation)) {
@@ -279,6 +279,10 @@ sap.ui.define(["sap/ui/fl/changeHandler/BaseTreeModifier", "sap/ui/fl/Utils"], f
 					// to the function initially, so its index is 0
 					return 0;
 				}
+			},
+
+			getParentAggregationName: function (oControl) {
+				return oControl.sParentAggregationName;
 			}
 		};
 
