@@ -15,7 +15,7 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 	 * @alias sap.ui.fl.Cache
 	 * @experimental Since 1.25.0
 	 * @author SAP SE
-	 * @version 1.54.1
+	 * @version 1.54.2
 	 */
 	var Cache = function () {
 	};
@@ -113,8 +113,7 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 						changes: [],
 						contexts: [],
 						variantSection: {},
-						ui2personalization: {},
-						settings: {}
+						ui2personalization: {}
 					}
 				}
 			};
@@ -196,21 +195,23 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 
 		// in case of no changes present according to async hints
 		if (mPropertyBag && mPropertyBag.cacheKey === "<NO CHANGES>") {
-			return oChangesBundleLoadingPromise.then(function (aChanges) {
+			var currentLoadChanges = oChangesBundleLoadingPromise.then(function (aChanges) {
 				return {
 					changes: {
 						changes : aChanges,
 						contexts : [],
 						variantSection : {},
-						ui2personalization : {},
-						settings : {}
+						ui2personalization : {}
 					},
 					componentClassName: sComponentName
 				};
 			});
+			oCacheEntry.promise = currentLoadChanges;
+			return currentLoadChanges;
 		}
 
-		var oChangesLoadingPromise = oLrepConnector.loadChanges(mComponent, mPropertyBag).then(function (oResult) {
+		var oFlexDataPromise = oLrepConnector.loadChanges(mComponent, mPropertyBag);
+		var oChangesLoadingPromise = oFlexDataPromise.then(function (oResult) {
 			return oResult;
 		}, function (oError) {
 			// if the back end is not reachable we still cache the results in a valid way because the url request is
@@ -222,8 +223,7 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 					changes: [],
 					contexts: [],
 					variantSection: {},
-					ui2personalization: {},
-					settings: {}
+					ui2personalization: {}
 				}
 			});
 		});
@@ -249,7 +249,7 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 		});
 
 		oCacheEntry.promise = currentLoadChanges;
-		Cache._oFlexDataPromise = currentLoadChanges;
+		Cache._oFlexDataPromise = oFlexDataPromise;
 
 		return currentLoadChanges;
 	};

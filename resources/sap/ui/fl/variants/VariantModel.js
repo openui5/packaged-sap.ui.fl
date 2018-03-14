@@ -28,7 +28,7 @@ sap.ui.define([
 	 * @class Variant Model implementation for JSON format
 	 * @extends sap.ui.model.json.JSONModel
 	 * @author SAP SE
-	 * @version 1.54.1
+	 * @version 1.54.2
 	 * @param {object} oData either the URL where to load the JSON from or a JS object
 	 * @param {object} oFlexController the FlexController instance for the component which uses the variant model
 	 * @param {object} oComponent Component instance that is currently loading
@@ -111,7 +111,7 @@ sap.ui.define([
 				if (this.oData[sVariantManagementReference].updateVariantInURL) {
 					this._updateVariantInURL(sVariantManagementReference, sNewVariantReference);
 				}
-				this.refresh(true);
+				this.checkUpdate();
 			}.bind(this));
 	};
 
@@ -179,89 +179,17 @@ sap.ui.define([
 		};
 	};
 
-	VariantModel.prototype.getVariant = function(sVariantReference) {
-		var sVariantManagementReference = this.getVariantManagementReference(sVariantReference).variantManagementReference;
-		return this.oVariantController.getVariant(sVariantManagementReference, sVariantReference);
+	VariantModel.prototype.getVariant = function(sVariantReference, sVariantManagementReference) {
+		return this.oVariantController.getVariant(
+			sVariantManagementReference
+				? sVariantManagementReference
+				: this.getVariantManagementReference(sVariantReference).variantManagementReference,
+			sVariantReference
+		);
 	};
 
 	VariantModel.prototype.getVariantProperty = function(sVariantReference, sProperty) {
 		return this.getVariant(sVariantReference).content.content[sProperty];
-	};
-
-	/**
-	 * Calculates title string for a duplicated variant
-	 *
-	 * For single copy - {0} is filled with the source variant title
-	 * E.g. if resource bundle text pattern is {0} Copy;
-	 * Duplicate (Source = 'Standard') -> 'Standard Copy'
-	 *
-	 * For multiple copies - {0} is filled with source variant title (no copy/counter) and {1} is filled with the highest counter of source variant tile
-	 * E.g. if resource bundle text pattern is {0} Copy {1};
-	 * Duplicate (Source = 'Standard Copy 1', with 'Standard Copy 5' already existing) -> 'Standard Copy 6'
-	 *
-	 * @param {String} sSourceVariantTitle Source variant title
-	 * @param {String} sVariantManagementReference Variant management reference belonging to the variants
-	 * @returns {String} Returns the duplicate variant title
-	 * @private
-	 */
-	VariantModel.prototype._getVariantTitleForCopy = function(sSourceVariantTitle, sVariantManagementReference) {
-		// \ ^ $ * + ? . ( ) | { } [ ] escaped for regex
-		var sCopyTextSingle =
-			this._oResourceBundle.getText("VARIANT_COPY_SINGLE_TEXT")
-				.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
-				.replace("\\{0\\}", "(.*)");
-
-		var sCopyTextMultiple =
-			this._oResourceBundle.getText("VARIANT_COPY_MULTIPLE_TEXT")
-				.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
-				.replace("\\{0\\}", "(.*)")
-				.replace("\\{1\\}", "([0-9]+)");
-
-		var regexForCopy = new RegExp(sCopyTextSingle + "+");
-		var regexForIncrement = new RegExp(sCopyTextMultiple);
-		var sTitleTrimmed;
-		var iIndexForCounter = sCopyTextMultiple.lastIndexOf("(.*)") > sCopyTextMultiple.lastIndexOf("([0-9]+)") ? 1 : 2;
-		var iIndexForTrimmedTitle = (iIndexForCounter === 1) ? 2 : 1;
-		var iTitleCounter = 0;
-
-		if (regexForIncrement.test(sSourceVariantTitle)) { /* Case 1: when Copy already has a counter in the end of string */
-			sTitleTrimmed = regexForIncrement.exec(sSourceVariantTitle)[iIndexForTrimmedTitle];
-		} else {
-			sTitleTrimmed =
-				regexForCopy.test(sSourceVariantTitle)
-				? regexForCopy.exec(sSourceVariantTitle)[1] /* Case 2: when Copy already exists at the end of string */
-				: sSourceVariantTitle; /* Case 3: when there is no copy or counter in the end of string */
-		}
-
-		var aRegexExecOnVariantTitle = [];
-		this.oData[sVariantManagementReference].variants.forEach( function(oVariant) {
-			if (oVariant.visible) {
-				aRegexExecOnVariantTitle =
-					regexForIncrement.test(oVariant.title)
-					? regexForIncrement.exec(oVariant.title)
-					: regexForCopy.exec(oVariant.title);
-
-				if (!aRegexExecOnVariantTitle) {
-					return;
-				}
-				/* First copy with counter is matched, if not, then only copy is matched */
-				if (aRegexExecOnVariantTitle.length === 3 &&
-					sTitleTrimmed === aRegexExecOnVariantTitle[iIndexForTrimmedTitle]) {
-					// Extract integer part & increment counter
-					iTitleCounter =
-						aRegexExecOnVariantTitle[iIndexForCounter]
-						? (parseInt(aRegexExecOnVariantTitle[iIndexForCounter], 10) + 1)
-						: iTitleCounter;
-
-				} else if (aRegexExecOnVariantTitle.length === 2
-							&& sTitleTrimmed === aRegexExecOnVariantTitle[1]) {
-					iTitleCounter = iTitleCounter === 0 ? 1 : iTitleCounter;
-				}
-			}
-		});
-		return iTitleCounter > 0
-			? this._oResourceBundle.getText("VARIANT_COPY_MULTIPLE_TEXT", [sTitleTrimmed, iTitleCounter])
-			: this._oResourceBundle.getText("VARIANT_COPY_SINGLE_TEXT", [sTitleTrimmed]);
 	};
 
 	VariantModel.prototype._addChange = function(oChange) {
@@ -335,11 +263,11 @@ sap.ui.define([
 				}
 			} else if (sKey === "content") {
 				oDuplicateVariant.content[sKey] = JSON.parse(JSON.stringify(oSourceVariant.content[sKey]));
-				oDuplicateVariant.content.content.title = this._getVariantTitleForCopy(mPropertyBag.title || oSourceVariant.content.content.title, mPropertyBag.variantManagementReference);
+				oDuplicateVariant.content.content.title = mPropertyBag.title;
 			} else {
 				oDuplicateVariant.content[sKey] = oSourceVariant.content[sKey];
 			}
-		}.bind(this));
+		});
 		oDuplicateVariant.content["layer"] = mPropertyBag.layer;
 
 		var aVariantChanges = oDuplicateVariant.controlChanges.slice();
@@ -376,7 +304,6 @@ sap.ui.define([
 	VariantModel.prototype._copyVariant = function(mPropertyBag) {
 		var oDuplicateVariantData = this._duplicateVariant(mPropertyBag);
 		var oVariantModelData = {
-//			author: mPropertyBag.layer,
 			key: oDuplicateVariantData.content.fileName,
 			layer: mPropertyBag.layer,
 			title: oDuplicateVariantData.content.content.title,
@@ -392,8 +319,9 @@ sap.ui.define([
 		//Flex Controller
 		var oVariant = this.oFlexController.createVariant(oDuplicateVariantData, this.oComponent);
 
+		var aChanges = [];
 		[oVariant].concat(oVariant.getControlChanges()).forEach(function(oChange) {
-			this.oFlexController._oChangePersistence.addDirtyChange(oChange);
+			aChanges.push(this.oFlexController._oChangePersistence.addDirtyChange(oChange));
 		}.bind(this));
 
 		//Variant Controller
@@ -402,12 +330,11 @@ sap.ui.define([
 		//Variant Model
 		this.oData[mPropertyBag.variantManagementReference].variants.splice(iIndex, 0, oVariantModelData);
 		return this.updateCurrentVariant(mPropertyBag.variantManagementReference, oVariant.getId()).then( function () {
-			this.checkUpdate(); /*For VariantManagement Control update*/
-			return oVariant;
-		}.bind(this));
+			return aChanges;
+		});
 	};
 
-	VariantModel.prototype._removeVariant = function(oVariant, sSourceVariantFileName, sVariantManagementReference) {
+	VariantModel.prototype.removeVariant = function(oVariant, sSourceVariantFileName, sVariantManagementReference) {
 		var aChangesToBeDeleted = this.oFlexController._oChangePersistence.getDirtyChanges().filter(function(oChange) {
 			return (oChange.getVariantReference && oChange.getVariantReference() === oVariant.getId()) ||
 					oChange.getId() === oVariant.getId();
@@ -415,10 +342,10 @@ sap.ui.define([
 		aChangesToBeDeleted.forEach( function(oChange) {
 			this.oFlexController._oChangePersistence.deleteChange(oChange);
 		}.bind(this));
-		var iIndex =  this.oVariantController.removeVariantFromVariantManagement(oVariant, sVariantManagementReference);
 
-		this.oData[sVariantManagementReference].variants.splice(iIndex, 1);
 		return this.updateCurrentVariant(sVariantManagementReference, sSourceVariantFileName).then( function () {
+			var iIndex =  this.oVariantController.removeVariantFromVariantManagement(oVariant, sVariantManagementReference); /* VariantController */
+			this.oData[sVariantManagementReference].variants.splice(iIndex, 1); /* VariantModel */
 			this.checkUpdate(); /*For VariantManagement Control update*/
 		}.bind(this));
 	};

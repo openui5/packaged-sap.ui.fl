@@ -26,7 +26,7 @@ sap.ui.define([
 	 * @class Variant class.
 	 * @extends sap.ui.base.ManagedObject
 	 * @author SAP SE
-	 * @version 1.54.1
+	 * @version 1.54.2
 	 * @alias sap.ui.fl.Variant
 	 * @experimental Since 1.52.0
 	 */
@@ -212,6 +212,17 @@ sap.ui.define([
 	 */
 	Variant.prototype.getNamespace = function () {
 		return this._oDefinition.content.namespace;
+	};
+
+	/**
+	 * Sets the namespace.
+	 *
+	 * @param {string} sNamespace Namespace of the variants document
+	 *
+	 * @public
+	 */
+	Variant.prototype.setNamespace = function (sNamespace) {
+		this._oDefinition.content.namespace = sNamespace;
 	};
 
 	/**
@@ -440,6 +451,16 @@ sap.ui.define([
 	 */
 	Variant.prototype.getComponent = function () {
 		return this._oDefinition.content.reference;
+	};
+
+	/**
+	 * Sets the component for the variant
+	 *
+	 * @param {string} sComponent ID of the app or app variant
+	 * @public
+	 */
+	Variant.prototype.setComponent = function (sComponent) {
+		this._oDefinition.content.reference = sComponent;
 	};
 
 	/**
