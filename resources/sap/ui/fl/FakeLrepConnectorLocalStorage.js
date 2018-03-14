@@ -23,7 +23,7 @@ sap.ui.define([
 	 * @class
 	 *
 	 * @author SAP SE
-	 * @version 1.54.0
+	 * @version 1.54.1
 	 *
 	 * @private
 	 * @static
@@ -75,6 +75,24 @@ sap.ui.define([
 			response: this._saveChange(mChangeDefinition),
 			status: 'success'
 		});
+	};
+
+	FakeLrepConnectorLocalStorage.prototype.send = function(sUri, sMethod, oData, mOptions) {
+		if (sMethod === "DELETE") {
+			return FakeLrepConnector.prototype.send.apply(this, arguments).then(function(oResponse) {
+				FakeLrepLocalStorage.getChanges().forEach(function(oChange) {
+					if (oChange.reference === oResponse.response.parameters[1]) {
+						FakeLrepLocalStorage.deleteChange(oChange.fileName);
+					}
+				});
+				return Promise.resolve({
+					response: undefined,
+					status: "nocontent"
+				});
+			});
+		} else {
+			return FakeLrepConnector.prototype.send.apply(this, arguments);
+		}
 	};
 
 	/**
@@ -328,7 +346,6 @@ sap.ui.define([
 		return {
 				fileName: sVariantManagementReference,
 				fileType: "ctrl_variant",
-				layer: "VENDOR",
 				variantManagementReference: sVariantManagementReference,
 				variantReference: "",
 				content: {

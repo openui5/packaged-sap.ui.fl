@@ -13,7 +13,7 @@ sap.ui.define([], function() {
 	 * @class
 	 *
 	 * @author SAP SE
-	 * @version 1.54.0
+	 * @version 1.54.1
 	 *
 	 * @private
 	 * @static
@@ -77,6 +77,9 @@ sap.ui.define([], function() {
 		if (sId) {
 
 			var sChange = window.localStorage.getItem(this.createChangeKey(sId));
+			if (!sChange) {
+				sChange = window.localStorage.getItem(this.createVariantKey(sId));
+			}
 			return JSON.parse(sChange);
 		}
 	};
@@ -149,6 +152,7 @@ sap.ui.define([], function() {
 
 		if (sId) {
 			window.localStorage.removeItem(this.createChangeKey(sId));
+			window.localStorage.removeItem(this.createVariantKey(sId));
 		}
 
 		this._callModifyCallbacks("delete");

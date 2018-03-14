@@ -6,9 +6,10 @@ sap.ui.require([
 	"sap/ui/fl/Change",
 	"sap/ui/fl/LrepConnector",
 	"sap/ui/fl/Cache",
-	"sap/ui/fl/registry/Settings"
+	"sap/ui/fl/registry/Settings",
+	"sap/m/MessageBox"
 ],
-function (ChangePersistence, FlexControllerFactory, Utils, Change, LrepConnector, Cache, Settings) {
+function (ChangePersistence, FlexControllerFactory, Utils, Change, LrepConnector, Cache, Settings, MessageBox) {
 	"use strict";
 	sinon.config.useFakeTimers = false;
 
@@ -116,12 +117,12 @@ function (ChangePersistence, FlexControllerFactory, Utils, Change, LrepConnector
 
 		return this.oChangePersistence.getChangesForComponent().then(function () {
 			assert.ok(fnSetChangeFileContentSpy.calledOnce, "then _setChangeFileContent of VariantManagement called once as file content is not set");
-			assert.ok(fnLoadInitialChangesStub.calledOnce, "then loadDefaultChanges of VariantManagement called once as file content is not set");
+			assert.ok(fnLoadInitialChangesStub.calledOnce, "then loadDefaultChanges of VariantManagement called for the first time");
 			assert.ok(fnApplyChangesOnVariantManagementStub.calledOnce, "then applyChangesOnVariantManagement called once for one variant management reference, as file content is not set");
 		}).then(function () {
 			this.oChangePersistence.getChangesForComponent().then(function () {
 				assert.ok(fnSetChangeFileContentSpy.calledOnce, "then _setChangeFileContent of VariantManagement not called again as file content is set");
-				assert.ok(fnLoadInitialChangesStub.calledOnce, "then loadDefaultChanges of VariantManagement not called again as file content is set");
+				assert.ok(fnLoadInitialChangesStub.calledTwice, "then loadDefaultChanges of VariantManagement called again");
 				assert.ok(fnApplyChangesOnVariantManagementStub.calledOnce, "then applyChangesOnVariantManagement not called again as file content is set\"");
 			});
 		}.bind(this));
@@ -1245,6 +1246,152 @@ function (ChangePersistence, FlexControllerFactory, Utils, Change, LrepConnector
 			assert.strictEqual(changes.some(function(oChange){return oChange.getId() === "change2Button1";}), false);
 		});
 	});
+
+	QUnit.test("when calling transportAllUIChanges successfully", function(assert) {
+		var oMockTransportInfo = {
+			packageName : "PackageName",
+			transport : "transportId"
+		};
+		var oMockNewChange = {
+			packageName : "$TMP",
+			fileType : "change",
+			id : "changeId2",
+			namespace : "namespace",
+			getDefinition : function(){
+				return {
+					packageName : this.packageName,
+					fileType : this.fileType
+				};
+			},
+			getId : function(){
+				return this.id;
+			},
+			getNamespace : function(){
+				return this.namespace;
+			},
+			setResponse : function(oDefinition){
+				this.packageName = oDefinition.packageName;
+			},
+			getPackage : function(){
+				return this.packageName;
+			}
+		};
+		var aMockLocalChanges = [oMockNewChange];
+
+		sandbox.stub(Utils, "getClient").returns('');
+		var fnOpenTransportSelectionStub = sandbox.stub(this.oChangePersistence._oTransportSelection, "openTransportSelection").returns(Promise.resolve(oMockTransportInfo));
+		var fnCheckTransportInfoStub = sandbox.stub(this.oChangePersistence._oTransportSelection, "checkTransportInfo").returns(true);
+		var fnGetChangesForComponentStub = sandbox.stub(this.oChangePersistence, "getChangesForComponent").returns(Promise.resolve(aMockLocalChanges));
+		var fnPrepareChangesForTransportStub = sandbox.stub(this.oChangePersistence._oTransportSelection, "_prepareChangesForTransport").returns(Promise.resolve());
+
+		return this.oChangePersistence.transportAllUIChanges().then(function(){
+			assert.ok(fnOpenTransportSelectionStub.calledOnce, "then openTransportSelection called once");
+			assert.ok(fnCheckTransportInfoStub.calledOnce, "then checkTransportInfo called once");
+			assert.ok(fnGetChangesForComponentStub.calledOnce, "then getChangesForComponent called once");
+			assert.ok(fnPrepareChangesForTransportStub.calledOnce, "then _prepareChangesForTransport called once");
+			assert.ok(fnPrepareChangesForTransportStub.calledWith(oMockTransportInfo, aMockLocalChanges), "then _prepareChangesForTransport called with the transport info and changes array");
+		});
+	});
+
+	QUnit.test("when calling transportAllUIChanges unsuccessfully", function(assert){
+		sandbox.stub(this.oChangePersistence._oTransportSelection, "openTransportSelection").returns(Promise.reject());
+		sandbox.stub(MessageBox, "show");
+		return this.oChangePersistence.transportAllUIChanges().then(function(sResponse){
+			assert.equal(sResponse, "Error", "then Promise.resolve() with error message is returned");
+		});
+	});
+
+	QUnit.test("when calling transportAllUIChanges successfully, but with cancelled transport selection", function(assert){
+		sandbox.stub(this.oChangePersistence._oTransportSelection, "openTransportSelection").returns(Promise.resolve());
+		return this.oChangePersistence.transportAllUIChanges().then(function(sResponse){
+			assert.equal(sResponse, "Cancel", "then Promise.resolve() with cancel message is returned");
+		});
+	});
+
+	QUnit.test("when calling resetChanges", function (assert) {
+		var done = assert.async();
+
+		// changes for the component
+		var oUserChange = new Change({
+			"fileType": "change",
+			"layer": "USER",
+			"fileName": "a",
+			"namespace": "b",
+			"packageName": "c",
+			"changeType": "labelChange",
+			"creation": "",
+			"reference": "",
+			"selector": {
+				"id": "abc123"
+			},
+			"content": {
+				"something": "createNewVariant"
+			}
+		});
+
+		var oVendorChange1 = new Change({
+			"fileType": "change",
+			"layer": "CUSTOMER",
+			"fileName": "a",
+			"namespace": "b",
+			"packageName": "c",
+			"changeType": "labelChange",
+			"creation": "",
+			"reference": "",
+			"selector": {
+				"id": "abc123"
+			},
+			"content": {
+				"something": "createNewVariant"
+			}
+		});
+
+		var oVendorChange2 = new Change({
+			"fileType": "change",
+			"layer": "CUSTOMER",
+			"fileName": "a",
+			"namespace": "b",
+			"packageName": "c",
+			"changeType": "labelChange",
+			"creation": "",
+			"reference": "",
+			"selector": {
+				"id": "abc123"
+			},
+			"content": {
+				"something": "createNewVariant"
+			}
+		});
+
+		var aChanges = [oVendorChange1, oUserChange, oVendorChange2];
+		sandbox.stub(this.oChangePersistence, "getChangesForComponent").returns(Promise.resolve(aChanges));
+
+		// Settings in registry
+		var oSetting = {
+			isKeyUser: true,
+			isAtoAvailable: true,
+			isProductiveSystem: function() {return false;},
+			hasMergeErrorOccured: function() {return false;},
+			isAtoEnabled: function() {return true;}
+		};
+		sandbox.stub(sap.ui.fl.registry.Settings, "getInstance").returns(Promise.resolve(oSetting));
+
+		// LREP Connector
+		var sExpectedUri = "/sap/bc/lrep/changes/" +
+			"?reference=MyComponent" +
+			"&appVersion=1.2.3" +
+			"&layer=CUSTOMER" +
+			"&generator=Change.createInitialFileContent" +
+			"&changelist=ATO_NOTIFICATION";
+		var oLrepStub = sandbox.stub(this.oChangePersistence._oConnector, "send").returns(Promise.resolve());
+
+		this.oChangePersistence.resetChanges("CUSTOMER", "Change.createInitialFileContent").then(function() {
+			assert.ok(oLrepStub.calledOnce, "the LrepConnector is called once");
+			assert.equal(oLrepStub.args[0][0], sExpectedUri, "and with the correct URI");
+			done();
+		});
+	});
+
 
 	QUnit.module("sap.ui.fl.ChangePersistence addChange", {
 		beforeEach: function () {

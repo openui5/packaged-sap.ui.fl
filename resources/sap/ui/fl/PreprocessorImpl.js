@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @class
 	 * @constructor
 	 * @author SAP SE
-	 * @version 1.54.0
+	 * @version 1.54.1
 	 * @experimental Since 1.27.0
 	 */
 	var PreprocessorImpl = function(){
@@ -39,7 +39,8 @@ sap.ui.define([
 
 			if (!sComponentId) {
 				jQuery.sap.log.warning("No component ID for determining the anchor of the code extensions was passed.");
-				return [];
+				//always return a promise if async
+				return Promise.resolve([]);
 			}
 
 			var oComponent = sap.ui.component(sComponentId);
@@ -61,6 +62,9 @@ sap.ui.define([
 
 				return aExtensionProviders;
 			});
+		} else {
+			jQuery.sap.log.warning("Synchronous extensions are not supported by sap.ui.fl.PreprocessorImpl");
+			return [];
 		}
 	};
 

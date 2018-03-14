@@ -19,6 +19,8 @@ sap.ui.define([
 ) {
 	"use strict";
 
+
+
 	/**
 	 * Helper object to handle variants and their changes
 	 *
@@ -30,13 +32,15 @@ sap.ui.define([
 	 * @alias sap.ui.fl.variants.VariantController
 	 * @experimental Since 1.50.0
 	 * @author SAP SE
-	 * @version 1.54.0
+	 * @version 1.54.1
 	 */
 	var VariantController = function (sComponentName, sAppVersion, oChangeFileContent) {
 		this._sComponentName = sComponentName || "";
 		this._sAppVersion = sAppVersion || Utils.DEFAULT_APP_VERSION;
 		this._mVariantManagement = {};
 		this._setChangeFileContent(oChangeFileContent, {});
+		this.sVariantTechnicalParameterName = "sap-ui-fl-control-variant-id";
+		this._oResourceBundle = sap.ui.getCore().getLibraryResourceBundle("sap.ui.fl");
 	};
 
 	/**
@@ -70,7 +74,7 @@ sap.ui.define([
 				var oVariantManagementReference = oChangeFileContent.changes.variantSection[sVariantManagementReference];
 				var aVariants = oVariantManagementReference.variants.concat();
 				var sVariantFromUrl;
-				var aURLVariants = Utils.getTechnicalURLParameterValues(oComponent, "sap-ui-fl-control-variant-id");
+				var mTechnicalParameters = Utils.getTechnicalParametersForComponent(oComponent);
 
 				var iIndex = -1;
 				aVariants.forEach(function (oVariant, index) {
@@ -83,16 +87,22 @@ sap.ui.define([
 					if (!oVariant.content.content.visible) {
 						oVariant.content.content.visible = true;
 					}
+					var aTitleKeyMatch = oVariant.content.content.title.match(/.i18n>(\w+)./);
+					if (aTitleKeyMatch) {
+						oVariant.content.content.title = this._oResourceBundle.getText(aTitleKeyMatch[1]);
+					}
 
 					this._applyChangesOnVariant(oVariant);
 
-					// Only the first valid reference for that variant management id passed in the parameters is used to load the changes
-					aURLVariants.some(function(sURLVariant) {
-						if (oVariant.content.fileName === sURLVariant) {
-							sVariantFromUrl = oVariant.content.fileName;
-							return true;
-						}
-					});
+					if (mTechnicalParameters && Array.isArray(mTechnicalParameters[this.sVariantTechnicalParameterName])) {
+						// Only the first valid reference for that variant management id passed in the parameters is used to load the changes
+						mTechnicalParameters[this.sVariantTechnicalParameterName].some(function (sURLVariant) {
+							if (oVariant.content.fileName === sURLVariant) {
+								sVariantFromUrl = oVariant.content.fileName;
+								return true;
+							}
+						});
+					}
 
 				}.bind(this));
 				if (iIndex > -1) {
@@ -293,6 +303,17 @@ sap.ui.define([
 				sVariantReference = this._mVariantManagement[sVariantManagementReference].defaultVariant;
 			}
 
+			//check for visibility of the variant, else use standard variant
+			var sVisible = this.getVariant(sVariantManagementReference, sVariantReference).content.content.visible;
+			if (!sVisible) {
+				if (this._mVariantManagement[sVariantManagementReference].initialVariant) {
+					this._mVariantManagement[sVariantManagementReference].initialVariant = sVariantManagementReference;
+				} else {
+					this._mVariantManagement[sVariantManagementReference].defaultVariant = sVariantManagementReference;
+				}
+				sVariantReference = sVariantManagementReference;
+			}
+
 			aInitialVMChanges = this.getVariantChanges(sVariantManagementReference, sVariantReference);
 
 			// Concatenate the changes for all valid or default variants of all variant management references
@@ -422,14 +443,17 @@ sap.ui.define([
 				delete this._mVariantManagement[sKey].initialVariant;
 			}
 			this.getVariants(sKey).forEach(function(oVariant, index) {
-				oVariantData[sKey].variants[index] = {
-					key : oVariant.content.fileName,
-					title : oVariant.content.content.title,
-					//author : oVariant.content.support.user, //TODO: get value from backend
-					layer : oVariant.content.layer,
-					favorite : oVariant.content.content.favorite,
-					visible : oVariant.content.content.visible
-				};
+				oVariantData[sKey].variants[index] =
+					//JSON.parse(JSON.stringify()) used to remove undefined properties e.g. standard variant layer
+					JSON.parse(
+						JSON.stringify({
+							key : oVariant.content.fileName,
+							title : oVariant.content.content.title,
+							layer : oVariant.content.layer,
+							favorite : oVariant.content.content.favorite,
+							visible : oVariant.content.content.visible
+						})
+					);
 			});
 		}.bind(this));
 
