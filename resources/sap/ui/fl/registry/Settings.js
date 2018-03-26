@@ -71,10 +71,10 @@ sap.ui.define([
 					"CUSTOMER", "VENDOR"
 				],
 				"propertyChange": [
-					"VENDOR"
+					"VENDOR", "CUSTOMER_BASE"
 				],
 				"propertyBindingChange": [
-					"VENDOR"
+					"VENDOR", "CUSTOMER_BASE"
 				]
 			};
 		}
