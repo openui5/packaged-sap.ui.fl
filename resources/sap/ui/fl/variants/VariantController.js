@@ -32,7 +32,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.variants.VariantController
 	 * @experimental Since 1.50.0
 	 * @author SAP SE
-	 * @version 1.54.2
+	 * @version 1.54.3
 	 */
 	var VariantController = function (sComponentName, sAppVersion, oChangeFileContent) {
 		this._sComponentName = sComponentName || "";
@@ -113,7 +113,7 @@ sap.ui.define([
 				this._mVariantManagement[sVariantManagementReference].variants = aVariants;
 				this._mVariantManagement[sVariantManagementReference].defaultVariant = sVariantManagementReference;
 				if (sVariantFromUrl){
-					this._mVariantManagement[sVariantManagementReference].initialVariant = sVariantFromUrl;
+					this._mVariantManagement[sVariantManagementReference].currentVariant = sVariantFromUrl;
 				}
 				this._mVariantManagement[sVariantManagementReference].variantManagementChanges =
 					oChangeFileContent.changes.variantSection[sVariantManagementReference].variantManagementChanges;
@@ -297,8 +297,8 @@ sap.ui.define([
 			var aInitialVMChanges = [];
 			var sVariantReference;
 
-			if (this._mVariantManagement[sVariantManagementReference].initialVariant){
-				sVariantReference = this._mVariantManagement[sVariantManagementReference].initialVariant;
+			if (this._mVariantManagement[sVariantManagementReference].currentVariant){
+				sVariantReference = this._mVariantManagement[sVariantManagementReference].currentVariant;
 			} else {
 				sVariantReference = this._mVariantManagement[sVariantManagementReference].defaultVariant;
 			}
@@ -306,8 +306,8 @@ sap.ui.define([
 			//check for visibility of the variant, else use standard variant
 			var sVisible = this.getVariant(sVariantManagementReference, sVariantReference).content.content.visible;
 			if (!sVisible) {
-				if (this._mVariantManagement[sVariantManagementReference].initialVariant) {
-					this._mVariantManagement[sVariantManagementReference].initialVariant = sVariantManagementReference;
+				if (this._mVariantManagement[sVariantManagementReference].currentVariant) {
+					this._mVariantManagement[sVariantManagementReference].currentVariant = sVariantManagementReference;
 				} else {
 					this._mVariantManagement[sVariantManagementReference].defaultVariant = sVariantManagementReference;
 				}
@@ -439,10 +439,9 @@ sap.ui.define([
 				defaultVariant : this._mVariantManagement[sKey].defaultVariant,
 				variants : []
 			};
-			//if an initial variant exists, it should be set as current variant
-			if (this._mVariantManagement[sKey].initialVariant){
-				oVariantData[sKey].currentVariant = this._mVariantManagement[sKey].initialVariant;
-				delete this._mVariantManagement[sKey].initialVariant;
+			//if a current variant is set in the map, it should be set in the model
+			if (this._mVariantManagement[sKey].currentVariant){
+				oVariantData[sKey].currentVariant = this._mVariantManagement[sKey].currentVariant;
 			}
 			this.getVariants(sKey).forEach(function(oVariant, index) {
 				oVariantData[sKey].variants[index] =
@@ -460,6 +459,10 @@ sap.ui.define([
 		}.bind(this));
 
 		return oVariantData;
+	};
+
+	VariantController.prototype.updateCurrentVariantInMap = function(sVariantManagementReference, sNewVariantReference) {
+		this._mVariantManagement[sVariantManagementReference].currentVariant = sNewVariantReference;
 	};
 
 	VariantController.prototype.addChangeToVariant = function (oChange, sVariantManagementReference, sVariantReference) {

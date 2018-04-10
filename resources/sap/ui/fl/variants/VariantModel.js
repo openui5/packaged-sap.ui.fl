@@ -28,7 +28,7 @@ sap.ui.define([
 	 * @class Variant Model implementation for JSON format
 	 * @extends sap.ui.model.json.JSONModel
 	 * @author SAP SE
-	 * @version 1.54.2
+	 * @version 1.54.3
 	 * @param {object} oData either the URL where to load the JSON from or a JS object
 	 * @param {object} oFlexController the FlexController instance for the component which uses the variant model
 	 * @param {object} oComponent Component instance that is currently loading
@@ -110,6 +110,7 @@ sap.ui.define([
 				this.oData[sVariantManagementReference].currentVariant = sNewVariantReference;
 				if (this.oData[sVariantManagementReference].updateVariantInURL) {
 					this._updateVariantInURL(sVariantManagementReference, sNewVariantReference);
+					this.oVariantController.updateCurrentVariantInMap(sVariantManagementReference, sNewVariantReference);
 				}
 				this.checkUpdate();
 			}.bind(this));
@@ -325,7 +326,7 @@ sap.ui.define([
 		}.bind(this));
 
 		//Variant Controller
-		var iIndex = this.oVariantController.addVariantToVariantManagement(oDuplicateVariantData, mPropertyBag.variantManagementReference);
+		var iIndex = this.oVariantController.addVariantToVariantManagement(oVariant.getDefinitionWithChanges(), mPropertyBag.variantManagementReference);
 
 		//Variant Model
 		this.oData[mPropertyBag.variantManagementReference].variants.splice(iIndex, 0, oVariantModelData);
@@ -440,6 +441,7 @@ sap.ui.define([
 				break;
 			case "setVisible":
 				mAdditionalChangeContent.visible = mPropertyBag.visible;
+				mAdditionalChangeContent.createdByReset = false; // 'createdbyReset' is used by the backend to distinguish between setVisible change created via reset and delete
 				//Update Variant Model
 				oVariant.visible = mPropertyBag.visible;
 				break;

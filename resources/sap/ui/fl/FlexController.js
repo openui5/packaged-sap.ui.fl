@@ -32,7 +32,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexController
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.54.2
+	 * @version 1.54.3
 	 */
 	var FlexController = function (sComponentName, sAppVersion) {
 		this._oChangePersistence = undefined;
@@ -221,20 +221,12 @@ sap.ui.define([
 	FlexController.prototype.createVariant = function (oVariantSpecificData, oAppComponent) {
 		var oVariant, oVariantFileContent;
 
-		var aCurrentDesignTimeContext = ContextManager._getContextIdsFromUrl();
-
-		if (aCurrentDesignTimeContext.length > 1) {
-			throw new Error("More than one DesignTime Context is currently active.");
-		}
-
 		if (!oAppComponent) {
 			throw new Error("No Application Component found - to offer flexibility the variant has to have a valid relation to its owning application component.");
 		}
 
 		oVariantSpecificData.content.reference = this.getComponentName(); //in this case the component name can also be the value of sap-app-id
 		oVariantSpecificData.content.packageName = "$TMP"; // first a flex change is always local, until all changes of a component are made transportable
-		oVariantSpecificData.context = aCurrentDesignTimeContext.length === 1 ? aCurrentDesignTimeContext[0] : "";
-		oVariantSpecificData.isVariant = true;
 
 		//fallback in case no application descriptor is available (e.g. during unit testing)
 		var sAppVersion = this.getAppVersion();
@@ -246,7 +238,7 @@ sap.ui.define([
 			oValidAppVersions.to = sAppVersion;
 		}
 
-		oVariantSpecificData.validAppVersions = oValidAppVersions;
+		oVariantSpecificData.content.validAppVersions = oValidAppVersions;
 
 		oVariantFileContent = Variant.createInitialFileContent(oVariantSpecificData);
 		oVariant = new Variant(oVariantFileContent);

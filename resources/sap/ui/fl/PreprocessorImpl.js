@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @class
 	 * @constructor
 	 * @author SAP SE
-	 * @version 1.54.2
+	 * @version 1.54.3
 	 * @experimental Since 1.27.0
 	 */
 	var PreprocessorImpl = function(){
