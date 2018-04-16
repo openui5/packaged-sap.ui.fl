@@ -15,7 +15,7 @@ sap.ui.define([
 	 * @class Variant Model implementation for JSON format
 	 * @extends sap.ui.model.json.JSONModel
 	 * @author SAP SE
-	 * @version 1.52.10
+	 * @version 1.52.11
 	 * @param {object} oData either the URL where to load the JSON from or a JS object
 	 * @param {object} oFlexController the FlexController instance for the component which uses the variant model
 	 * @param {object} oComponent Component instance that is currently loading
@@ -286,7 +286,7 @@ sap.ui.define([
 	 * Returns the variants for a given variant management Ref
 	 * @param {String} sVariantManagementReference The variant management Ref
 	 * @param {String} sNewVariantReference The newly selected variant Ref
-	 * @returns {promise} Returns Promise that resolves after reverting of old variants and applying of new variants is completed
+	 * @returns {Promise} Returns Promise that resolves after reverting of old variants and applying of new variants is completed
 	 * @public
 	 */
 	VariantModel.prototype._switchToVariant = function(sVariantManagementReference, sNewVariantReference) {
