@@ -27,7 +27,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.descriptorRelated.api.DescriptorVariant
 	 * @author SAP SE
-	 * @version 1.52.12
+	 * @version 1.52.13
 	 * @private
 	 * @sap-restricted
 	 */
@@ -238,7 +238,7 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.descriptorRelated.api.DescriptorVariantFactory
 	 * @author SAP SE
-	 * @version 1.52.12
+	 * @version 1.52.13
 	 * @private
 	 * @sap-restricted
 	 */

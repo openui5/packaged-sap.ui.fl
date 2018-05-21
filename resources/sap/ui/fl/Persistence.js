@@ -5,8 +5,8 @@
  */
 
 sap.ui.define([
-	"sap/ui/fl/Change", "sap/ui/fl/DefaultVariant",  "sap/ui/fl/StandardVariant", "sap/ui/fl/Utils", "jquery.sap.global", "sap/ui/fl/LrepConnector", "sap/ui/fl/Cache"
-], function(Change, defaultVariant, standardVariant, Utils, $, LRepConnector, Cache) {
+	"sap/ui/fl/Change", "sap/ui/fl/DefaultVariant",  "sap/ui/fl/StandardVariant", "sap/ui/fl/Utils", "jquery.sap.global", "sap/ui/fl/LrepConnector", "sap/ui/fl/Cache", "sap/ui/fl/registry/Settings"
+], function(Change, defaultVariant, standardVariant, Utils, $, LRepConnector, Cache, Settings) {
 
 	"use strict";
 	/**
@@ -17,7 +17,7 @@ sap.ui.define([
 	 * @param {string} [sStableIdPropertyName='id'] the stable id
 	 * @alias sap.ui.fl.Persistence
 	 * @author SAP SE
-	 * @version 1.52.12
+	 * @version 1.52.13
 	 * @experimental Since 1.25.0
 	 */
 	var Persistence = function(oControl, sStableIdPropertyName) {
@@ -194,6 +194,9 @@ sap.ui.define([
 	 */
 	Persistence.prototype._resolveFillingCacheWithChanges = function(oFile) {
 		this._fillRelevantChanges(oFile);
+        if (oFile.changes && oFile.changes.settings){
+            Settings._storeInstance(oFile.changes.settings);
+        }
 		if (oFile && oFile.changes && oFile.changes.messagebundle) {
 			this._oMessagebundle = oFile.changes.messagebundle;
 			this._checkForMessagebundleBinding();
