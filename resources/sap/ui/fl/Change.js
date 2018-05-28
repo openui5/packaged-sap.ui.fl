@@ -26,7 +26,7 @@ sap.ui.define([
 	 * @class Change class.
 	 * @extends sap.ui.base.ManagedObject
 	 * @author SAP SE
-	 * @version 1.56.0
+	 * @version 1.56.1
 	 * @alias sap.ui.fl.Change
 	 * @experimental Since 1.25.0
 	 */
@@ -856,7 +856,8 @@ sap.ui.define([
 				generator: oPropertyBag.generator || "Change.createInitialFileContent",
 				service: oPropertyBag.service || "",
 				user: "",
-				sapui5Version: sap.ui.version
+				sapui5Version: sap.ui.version,
+				compositeCommand: ""
 			},
 			dependentSelector: oPropertyBag.dependentSelector || {},
 			validAppVersions: oPropertyBag.validAppVersions || {},
