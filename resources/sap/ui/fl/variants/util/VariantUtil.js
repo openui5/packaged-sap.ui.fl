@@ -9,13 +9,15 @@ sap.ui.define([
 	"sap/ui/core/Component",
 	"sap/ui/fl/Utils",
 	"sap/ui/core/routing/History",
-	"sap/ui/core/routing/HashChanger"
+	"sap/ui/core/routing/HashChanger",
+	"sap/base/Log"
 ], function(
 	jQuery,
 	Component,
 	flUtils,
 	History,
-	HashChanger
+	HashChanger,
+	Log
 ) {
 	"use strict";
 
@@ -26,7 +28,7 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.variants.util.VariantUtil
 	 * @author SAP SE
-	 * @version 1.56.1
+	 * @version 1.56.2
 	 * @experimental Since 1.56.0
 	 */
 	var VariantUtil = {
@@ -60,6 +62,10 @@ sap.ui.define([
 		},
 
 		updateHasherEntry: function(mPropertyBag) {
+			if (!mPropertyBag || !Array.isArray(mPropertyBag.parameters)) {
+				Log.info("Variant URL parameters could not be updated since invalid parameters were received");
+				return;
+			}
 			if (mPropertyBag.updateURL) {
 				flUtils.setTechnicalURLParameterValues(
 					mPropertyBag.component || this.oComponent,
@@ -101,9 +107,10 @@ sap.ui.define([
 			if (this._oHashRegister.currentIndex >= 0) {
 
 				var aVariantParamValues;
+				var mPropertyBag = {};
 				if (sDirection === "NewEntry" || sDirection === "Unknown") {
 					// get URL hash parameters
-					var mHashParameters = flUtils.getParsedURLHash().params;
+					var mHashParameters = flUtils.getParsedURLHash() && flUtils.getParsedURLHash().params;
 					aVariantParamValues = ( mHashParameters && mHashParameters[this.sVariantTechnicalParameterName] ) || [];
 
 					// check if variant management control for previously existing register entry exists
@@ -116,25 +123,26 @@ sap.ui.define([
 					}
 
 					// do not update URL parameters if new entry/unknown
-					this.updateHasherEntry({
+					mPropertyBag = {
 						parameters: aVariantParamValues
-					});
+					};
 				} else {
 					aVariantParamValues = this._oHashRegister.hashParams[this._oHashRegister.currentIndex];
-					this.updateHasherEntry({
+					mPropertyBag = {
 						parameters: aVariantParamValues,
 						updateURL: true,
 						ignoreRegisterUpdate: true
-					});
+					};
 				}
 			} else {
 				// e.g. when index is -1, variant parameter is removed with no entry
-				this.updateHasherEntry({
+				mPropertyBag = {
 					parameters: [],
 					updateURL: true,
 					ignoreRegisterUpdate: true
-				});
+				};
 			}
+			this.updateHasherEntry(mPropertyBag);
 		},
 
 		_setCustomNavigationForParameter: function() {
@@ -154,7 +162,7 @@ sap.ui.define([
 			var oNewParsed = oURLParsing.parseShellHash(sNewHash);
 
 			var bSuppressDefaultNavigation = false;
-			[oOldParsed, oNewParsed].some(
+			[oOldParsed, oNewParsed].forEach(
 				function (oParsedHash) {
 					// Parameter should exists on either of the parsed hashes
 					// If parameter exists but it's not the only one, it's invalid
@@ -180,6 +188,12 @@ sap.ui.define([
 				};
 			}
 			return oShellNavigation.NavigationFilterStatus.Continue;
+		},
+
+		getCurrentHashParamsFromRegister: function () {
+			if (jQuery.isNumeric(this._oHashRegister.currentIndex)) {
+				return this._oHashRegister.hashParams[this._oHashRegister.currentIndex];
+			}
 		}
 
 	};

@@ -16,6 +16,11 @@ sap.ui.require([
 	"sap/ui/core/util/reflection/XmlTreeModifier",
 	"sap/ui/fl/context/ContextManager",
 	"sap/ui/rta/ControlTreeModifier",
+	"sap/ui/core/CustomData",
+	"sap/ui/core/Manifest",
+	"sap/ui/core/UIComponent",
+	"sap/m/Text",
+	"sap/m/Label",
 	"sap/ui/thirdparty/sinon",
 	"sap/ui/thirdparty/sinon-qunit"
 ],
@@ -33,6 +38,11 @@ function (
 	XmlTreeModifier,
 	ContextManager,
 	RTAControlTreeModifier,
+	CustomData,
+	Manifest,
+	UIComponent,
+	Text,
+	Label,
 	sinon
 ) {
 	'use strict';
@@ -186,7 +196,7 @@ function (
 			applyChange: changeHandlerApplyChangeStub
 		});
 
-		var oAppComponent = new sap.ui.core.UIComponent();
+		var oAppComponent = new UIComponent();
 
 		this.stub(JsControlTreeModifier, "bySelector").returns({});
 		this.stub(JsControlTreeModifier, "getControlType").returns("aType");
@@ -962,7 +972,7 @@ function (
 
 	QUnit.test("creates a change for a map of a control with id, control type and appComponent", function (assert) {
 
-		var oAppComponent = new sap.ui.core.UIComponent();
+		var oAppComponent = new UIComponent();
 		var mControl = {id : this.oControl.getId(), appComponent : oAppComponent, controlType : "sap.ui.core.Control"};
 
 		var oDummyChangeHandler = {
@@ -985,7 +995,7 @@ function (
 
 	QUnit.test("throws an error if a map of a control has no appComponent or no id or no controlType", function (assert) {
 
-		var oAppComponent = new sap.ui.core.UIComponent();
+		var oAppComponent = new UIComponent();
 		var mControl1 = {id : this.oControl.getId(), appComponent : undefined, controlType : "sap.ui.core.Control"};
 		var mControl2 = {id : undefined, appComponent : oAppComponent, controlType : "sap.ui.core.Control"};
 		var mControl3 = {id : this.oControl.getId(), appComponent : oAppComponent, controlType : undefined};
@@ -1031,6 +1041,21 @@ function (
 		this.stub(this.oFlexController, "_getChangeHandler").returns(oDummyChangeHandler);
 
 		var oChange = this.oFlexController.createChange({ developerMode : true, scenario : sap.ui.fl.Scenario.AdaptationProject }, new Control());
+		var oValidAppVersions = oChange.getDefinition().validAppVersions;
+
+		assert.equal(oValidAppVersions.creation, this.oFlexController.getAppVersion(), "the valid CREATION app version is correct");
+		assert.equal(oValidAppVersions.from, this.oFlexController.getAppVersion(), "the valid FROM app version is correct");
+		assert.equal(oValidAppVersions.to, undefined, "the TO app version is not defined");
+	});
+
+	QUnit.test("creates a change containing valid applicationVersions in developerMode and AppVariant scenario", function (assert) {
+		this.stub(Utils, "getAppComponentForControl").returns(oComponent);
+		var oDummyChangeHandler = {
+			completeChangeContent: function () {}
+		};
+		this.stub(this.oFlexController, "_getChangeHandler").returns(oDummyChangeHandler);
+
+		var oChange = this.oFlexController.createChange({ developerMode : true, scenario : sap.ui.fl.Scenario.AppVariant }, new Control());
 		var oValidAppVersions = oChange.getDefinition().validAppVersions;
 
 		assert.equal(oValidAppVersions.creation, this.oFlexController.getAppVersion(), "the valid CREATION app version is correct");
@@ -1709,7 +1734,7 @@ function (
 		beforeEach: function (assert) {
 			var oLabelChangeContent = jQuery.extend({}, labelChangeContent);
 			this.sLabelId = oLabelChangeContent.selector.id;
-			this.oControl = new sap.m.Label(this.sLabelId);
+			this.oControl = new Label(this.sLabelId);
 			this.oChange = new Change(oLabelChangeContent);
 			this.mChanges = {
 				"mChanges": {},
@@ -1751,6 +1776,29 @@ function (
 		.then(function (bValue) {
 			assert.ok(bValue, "the promise returns a true value");
 		});
+	});
+
+	QUnit.test("when the control in refreshed with the same id as the previous control during change application", function (assert) {
+		sandbox.restore();
+
+		sandbox.stub(this.oFlexController, "_getChangeHandler").returns({
+			applyChange: function() {
+				var sId = this.oControl.getId();
+				this.oControl.destroy();
+				this.oControl = new Text(sId);
+				return this.oControl;
+			}.bind(this)
+		});
+
+		return this.oFlexController.checkTargetAndApplyChange(this.oChange, this.oControl, {
+			modifier: JsControlTreeModifier,
+			appComponent: {}
+		})
+			.then(function (bValue) {
+				var aAppliedChanges = this.oFlexController._getAppliedCustomData({}, this.oControl, JsControlTreeModifier).customDataEntries;
+				assert.ok(this.oControl instanceof sap.m.Text, "then the refreshed control was initialized in changeHandler.applyChange()");
+				assert.ok(aAppliedChanges.indexOf(this.oChange.getId()) > -1, "then custom data is written on the refreshed control");
+			}.bind(this));
 	});
 
 	QUnit.test("does not directly return with undefined when 'jsOnly' is set to true", function (assert) {
@@ -1803,7 +1851,7 @@ function (
 	});
 
 	QUnit.test("deletes the changeId from custom data after reverting the change", function (assert) {
-		var oFlexCustomData = new sap.ui.core.CustomData({
+		var oFlexCustomData = new CustomData({
 			key: FlexController.appliedChangesCustomDataKey,
 			value: this.oChange.getId()
 		});
@@ -1818,7 +1866,7 @@ function (
 	});
 
 	QUnit.test("deletes the changeId from custom data without reverting the change", function (assert) {
-		var oFlexCustomData = new sap.ui.core.CustomData({
+		var oFlexCustomData = new CustomData({
 			key: FlexController.appliedChangesCustomDataKey,
 			value: this.oChange.getId()
 		});
@@ -1867,7 +1915,7 @@ function (
 
 	QUnit.test("concatenate custom data on the later changes applied on a control", function (assert) {
 		var sAlreadyAppliedChangeId = "id_123_anAlreadyAppliedChange";
-		var oFlexCustomData = new sap.ui.core.CustomData({
+		var oFlexCustomData = new CustomData({
 			key: FlexController.appliedChangesCustomDataKey,
 			value: sAlreadyAppliedChangeId
 		});
@@ -1885,7 +1933,7 @@ function (
 	QUnit.test("delete only reverted changeId from custom data", function (assert) {
 		var sAlreadyAppliedChangeId = "id_123_anAlreadyAppliedChange";
 		var sAlreadyAppliedChangeId2 = "id_456_anAlreadyAppliedChange";
-		var oFlexCustomData = new sap.ui.core.CustomData({
+		var oFlexCustomData = new CustomData({
 			key: FlexController.appliedChangesCustomDataKey,
 			value: sAlreadyAppliedChangeId + "," + sAlreadyAppliedChangeId2 + "," + this.oChange.getId()
 		});
@@ -1902,7 +1950,7 @@ function (
 	});
 
 	QUnit.test("does not call the change handler if the change was already applied", function (assert) {
-		var oFlexCustomData = new sap.ui.core.CustomData({
+		var oFlexCustomData = new CustomData({
 			key: FlexController.appliedChangesCustomDataKey,
 			value: this.oChange.getId()
 		});
@@ -1957,7 +2005,7 @@ function (
 	QUnit.module("applyVariantChanges with two changes for a label", {
 		beforeEach: function (assert) {
 			this.sLabelId = labelChangeContent.selector.id;
-			this.oControl = new sap.m.Label(this.sLabelId);
+			this.oControl = new Label(this.sLabelId);
 			this.oChange = new Change(labelChangeContent);
 			this.oChange2 = new Change(labelChangeContent2);
 			this.oFlexController = new FlexController("testScenarioComponent", "1.2.3");
@@ -1973,7 +2021,7 @@ function (
 					}
 				}
 			};
-			var oManifest = new sap.ui.core.Manifest(oManifestObj);
+			var oManifest = new Manifest(oManifestObj);
 			this.oComponent = {
 				name: "testScenarioComponent",
 				appVersion: "1.2.3",
@@ -2010,7 +2058,7 @@ function (
 	QUnit.module("[JS] checkTargetAndApplyChange / removeFromAppliedChanges with two changes for a label", {
 		beforeEach: function (assert) {
 			this.sLabelId = labelChangeContent.selector.id;
-			this.oControl = new sap.m.Label(this.sLabelId);
+			this.oControl = new Label(this.sLabelId);
 			this.oChange = new Change(labelChangeContent);
 			this.oChange2 = new Change(labelChangeContent2);
 			this.mChanges = {
@@ -2043,7 +2091,7 @@ function (
 					}
 				}
 			};
-			var oManifest = new sap.ui.core.Manifest(oManifestObj);
+			var oManifest = new Manifest(oManifestObj);
 			this.oComponent = {
 				name: "testScenarioComponent",
 				appVersion: "1.2.3",
@@ -2087,7 +2135,7 @@ function (
 	});
 
 	QUnit.test("calls the change handler twice and delete the ids from the custom data", function (assert) {
-		var oFlexCustomData = new sap.ui.core.CustomData({
+		var oFlexCustomData = new CustomData({
 			key: FlexController.appliedChangesCustomDataKey,
 			value: this.oChange.getId() + "," + this.oChange2.getId()
 		});
@@ -2102,7 +2150,7 @@ function (
 	});
 
 	QUnit.test("calls the change handler twice and delete the ids from the custom data separately", function (assert) {
-		var oFlexCustomData = new sap.ui.core.CustomData({
+		var oFlexCustomData = new CustomData({
 			key: FlexController.appliedChangesCustomDataKey,
 			value: this.oChange.getId() + "," + this.oChange2.getId()
 		});
@@ -2125,7 +2173,7 @@ function (
 	});
 
 	QUnit.test("concatenate custom data on the later changes (first already applied) applied on a control", function (assert) {
-		var oFlexCustomData = new sap.ui.core.CustomData({
+		var oFlexCustomData = new CustomData({
 			key: FlexController.appliedChangesCustomDataKey,
 			value: this.oChange.getId()
 		});
@@ -2141,7 +2189,7 @@ function (
 	});
 
 	QUnit.test("concatenate custom data on the later changes (second already applied) applied on a control", function (assert) {
-		var oFlexCustomData = new sap.ui.core.CustomData({
+		var oFlexCustomData = new CustomData({
 			key: FlexController.appliedChangesCustomDataKey,
 			value: this.oChange2.getId()
 		});
@@ -2159,7 +2207,7 @@ function (
 
 	QUnit.test("change handler not called for two applied changes", function (assert) {
 		var sFlexCustomDataValue = this.oChange.getId() + "," + this.oChange2.getId();
-		var oFlexCustomData = new sap.ui.core.CustomData({
+		var oFlexCustomData = new CustomData({
 			key: FlexController.appliedChangesCustomDataKey,
 			value: sFlexCustomDataValue
 		});
@@ -2174,7 +2222,7 @@ function (
 	});
 
 	QUnit.test("does not call the change handler if the change wasn't applied, with already existing customData", function(assert) {
-		var oFlexCustomData = new sap.ui.core.CustomData({
+		var oFlexCustomData = new CustomData({
 			key: FlexController.appliedChangesCustomDataKey,
 			value: this.oChange.getId()
 		});
@@ -2191,7 +2239,7 @@ function (
 	QUnit.module("[JS] checkTargetAndApplyChange / removeFromAppliedChanges with three changes for a label", {
 		beforeEach: function (assert) {
 			this.sLabelId = labelChangeContent.selector.id;
-			this.oControl = new sap.m.Label(this.sLabelId);
+			this.oControl = new Label(this.sLabelId);
 			this.oChange = new Change(labelChangeContent);
 			this.oChange2 = new Change(labelChangeContent2);
 			this.oChange3 = new Change(labelChangeContent3);
@@ -2218,7 +2266,7 @@ function (
 					}
 				}
 			};
-			var oManifest = new sap.ui.core.Manifest(oManifestObj);
+			var oManifest = new Manifest(oManifestObj);
 			this.oComponent = {
 				name: "testScenarioComponent",
 				appVersion: "1.2.3",
@@ -2722,8 +2770,8 @@ function (
 		beforeEach: function (assert) {
 			this.sLabelId = labelChangeContent.selector.id;
 			this.sLabelId2 = labelChangeContent6.selector.id;
-			this.oControl = new sap.m.Label(this.sLabelId);
-			this.oControl2 = new sap.m.Label(this.sLabelId2);
+			this.oControl = new Label(this.sLabelId);
+			this.oControl2 = new Label(this.sLabelId2);
 			this.oChange = new Change(labelChangeContent);
 			this.oChange2 = new Change(labelChangeContent2);
 			this.oChange3 = new Change(labelChangeContent3);
@@ -2770,7 +2818,7 @@ function (
 					}
 				}
 			};
-			var oManifest = new sap.ui.core.Manifest(oManifestObj);
+			var oManifest = new Manifest(oManifestObj);
 			this.oComponent = {
 				name: "testScenarioComponent",
 				appVersion: "1.2.3",
