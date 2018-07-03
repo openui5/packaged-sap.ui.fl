@@ -19,8 +19,6 @@ sap.ui.define([
 ) {
 	"use strict";
 
-
-
 	/**
 	 * Helper object to handle variants and their changes
 	 *
@@ -32,7 +30,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.variants.VariantController
 	 * @experimental Since 1.50.0
 	 * @author SAP SE
-	 * @version 1.56.2
+	 * @version 1.56.3
 	 */
 	var VariantController = function (sComponentName, sAppVersion, oChangeFileContent) {
 		this._sComponentName = sComponentName || "";

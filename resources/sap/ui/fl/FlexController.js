@@ -49,7 +49,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexController
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.56.2
+	 * @version 1.56.3
 	 */
 	var FlexController = function (sComponentName, sAppVersion) {
 		this._oChangePersistence = undefined;
@@ -336,9 +336,12 @@ sap.ui.define([
 		};
 		return this.checkTargetAndApplyChange(oChange, oControl, mPropertyBag)
 
-		.catch(function(oException) {
-			this._oChangePersistence.deleteChange(oChange);
-			throw oException;
+		.then(function(oReturn) {
+			if (!oReturn.success) {
+				var oException = oReturn.error || new Error("The change could not be applied.");
+				this._oChangePersistence.deleteChange(oChange);
+				throw oException;
+			}
 		}.bind(this));
 	};
 
@@ -538,8 +541,10 @@ sap.ui.define([
 				aPromiseStack.push(function() {
 					return this.checkTargetAndApplyChange(oChange, oControl, mPropertyBag)
 
-					.catch(function(oException) {
-						this._logApplyChangeError(oException, oChange);
+					.then(function(oReturn) {
+						if (!oReturn.success) {
+							this._logApplyChangeError(oReturn.error || {}, oChange);
+						}
 					}.bind(this));
 				}.bind(this));
 
@@ -595,12 +600,13 @@ sap.ui.define([
 		var oRtaControlTreeModifier;
 
 		if (!oChangeHandler) {
-			Utils.log.warning("Change handler implementation for change not found or change type not enabled for current layer - Change ignored");
-			return new Utils.FakePromise();
+			var sErrorMessage = "Change handler implementation for change not found or change type not enabled for current layer - Change ignored";
+			Utils.log.warning(sErrorMessage);
+			return new Utils.FakePromise({success: false, error: new Error(sErrorMessage)});
 		}
 		if (bXmlModifier && oChange.getDefinition().jsOnly) {
 			//change is not capable of xml modifier
-			return new Utils.FakePromise();
+			return new Utils.FakePromise({success: false, error: new Error("Change can not be applied in XML. Retrying in JS.")});
 		}
 
 		var mAppliedChangesCustomData = this._getAppliedCustomData(oChange, oControl, oModifier);
@@ -656,7 +662,7 @@ sap.ui.define([
 				}
 				delete oChange.PROCESSING;
 				oChange.APPLIED = true;
-				return true;
+				return {success: true};
 			}.bind(this))
 
 			.catch(function(ex) {
@@ -692,10 +698,10 @@ sap.ui.define([
 					});
 				}
 				delete oChange.PROCESSING;
-				return false;
+				return {success: false, error: ex};
 			}.bind(this));
 		}
-		return new Utils.FakePromise(true);
+		return new Utils.FakePromise({success: true});
 	};
 
 	FlexController.prototype._removeFromAppliedChangesAndMaybeRevert = function(oChange, oControl, mPropertyBag, bRevert) {
@@ -1037,8 +1043,8 @@ sap.ui.define([
 				oChange.QUEUED = true;
 				aPromiseStack.push(function() {
 					return this.checkTargetAndApplyChange(oChange, oControl, mPropertyBag)
-					.then(function(bUpdate) {
-						if (bUpdate) {
+					.then(function(oResult) {
+						if (oResult.success) {
 							this._updateDependencies(mDependencies, mDependentChangesOnMe, oChange.getId());
 						}
 						delete oChange.QUEUED;
@@ -1228,9 +1234,11 @@ sap.ui.define([
 					function() {
 						return oDependency[FlexController.PENDING]()
 
-						.then(function (){
-							aDependenciesToBeDeleted.push(sDependencyKey);
-							aAppliedChanges.push(oDependency.changeObject.getId());
+						.then(function (oReturn) {
+							if (oReturn.success) {
+								aDependenciesToBeDeleted.push(sDependencyKey);
+								aAppliedChanges.push(oDependency.changeObject.getId());
+							}
 						});
 					}
 				);

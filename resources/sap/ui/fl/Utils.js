@@ -36,7 +36,7 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.Utils
 	 * @author SAP SE
-	 * @version 1.56.2
+	 * @version 1.56.3
 	 * @experimental Since 1.25.0
 	 */
 	var Utils = {
@@ -852,7 +852,8 @@ sap.ui.define([
 			var oUshellContainer = Utils.getUshellContainer();
 			if (oUshellContainer) {
 				var oURLParser = oUshellContainer.getService("URLParsing");
-				return oURLParser.parseShellHash(oURLParser.getHash(window.location.href));
+				var oParsedHash = oURLParser.parseShellHash(oURLParser.getHash(window.location.href));
+				return oParsedHash ? oParsedHash : { };
 			}
 			return { };
 		},
