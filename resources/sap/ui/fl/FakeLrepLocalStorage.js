@@ -13,7 +13,7 @@ sap.ui.define([], function() {
 	 * @class
 	 *
 	 * @author SAP SE
-	 * @version 1.56.4
+	 * @version 1.56.5
 	 *
 	 * @private
 	 * @static

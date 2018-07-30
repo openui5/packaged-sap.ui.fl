@@ -43,7 +43,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.registry.ChangeRegistry
 	 *
 	 * @author SAP SE
-	 * @version 1.56.4
+	 * @version 1.56.5
 	 * @experimental Since 1.27.0
 	 *
 	 */
