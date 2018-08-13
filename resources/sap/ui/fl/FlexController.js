@@ -49,7 +49,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexController
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.56.5
+	 * @version 1.56.6
 	 */
 	var FlexController = function (sComponentName, sAppVersion) {
 		this._oChangePersistence = undefined;
@@ -882,10 +882,11 @@ sap.ui.define([
 		mPropertyBag = mPropertyBag || {};
 		//Always include smart variants when checking personalization
 		mPropertyBag.includeVariants = true;
-		return this.getComponentChanges(mPropertyBag).then(function (aChanges) {
-			var bIsPersonalized = aChanges.some(function (oChange) {
-				return oChange.isUserDependent();
-			});
+		return this.getComponentChanges(mPropertyBag).then(function (vChanges) {
+			var bIsPersonalized = vChanges === "userLevelVariantChangesExist"
+				|| vChanges.some(function (oChange) {
+					return oChange.isUserDependent();
+				});
 
 			return !!bIsPersonalized;
 		});

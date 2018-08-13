@@ -15,7 +15,7 @@ sap.ui.define([
 	 * Change handler for unstashing of a control.
 	 * @alias sap.ui.fl.changeHandler.UnstashControl
 	 * @author SAP SE
-	 * @version 1.56.5
+	 * @version 1.56.6
 	 * @experimental Since 1.27.0
 	 */
 	var UnstashControl = { };

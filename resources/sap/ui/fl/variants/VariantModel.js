@@ -30,7 +30,7 @@ sap.ui.define([
 	 * @class Variant Model implementation for JSON format
 	 * @extends sap.ui.model.json.JSONModel
 	 * @author SAP SE
-	 * @version 1.56.5
+	 * @version 1.56.6
 	 * @param {object} oData either the URL where to load the JSON from or a JS object
 	 * @param {object} oFlexController the FlexController instance for the component which uses the variant model
 	 * @param {object} oComponent Component instance that is currently loading
@@ -752,16 +752,20 @@ sap.ui.define([
 		return BaseTreeModifier.getSelector(sId, oAppComponent).id;
 	};
 
-	VariantModel.prototype.switchToDefaultVariant = function(sVariantId) {
+	VariantModel.prototype.switchToDefaultForVariantManagement = function (sVariantManagementReference) {
+		BusyIndicator.show(200);
+		this.updateCurrentVariant(sVariantManagementReference, this.oData[sVariantManagementReference].defaultVariant)
+			.then(function () {
+				BusyIndicator.hide();
+			});
+	};
+
+	VariantModel.prototype.switchToDefaultForVariant = function(sVariantId) {
 		Object.keys(this.oData).forEach(function (sVariantManagementReference) {
 			// set default variant only if passed variant id matches the current variant, or
 			// if no variant id passed, set to default variant
 			if (!sVariantId || this.oData[sVariantManagementReference].currentVariant === sVariantId) {
-				BusyIndicator.show(200);
-				this.updateCurrentVariant(sVariantManagementReference, this.oData[sVariantManagementReference].defaultVariant)
-					.then(function () {
-						BusyIndicator.hide();
-					});
+				this.switchToDefaultForVariantManagement.call(this, sVariantManagementReference);
 			}
 		}.bind(this));
 	};
@@ -786,7 +790,7 @@ sap.ui.define([
 			//control property updateVariantInURL set initially
 			if (oVariantManagementControl.getUpdateVariantInURL()) {
 				this.oData[sVariantManagementReference].updateVariantInURL = true;
-				VariantUtil.attachHashHandlers.call(this);
+				VariantUtil.attachHashHandlers.call(this, sVariantManagementReference);
 			}
 		}
 	};

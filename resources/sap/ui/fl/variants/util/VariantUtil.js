@@ -30,7 +30,7 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.variants.util.VariantUtil
 	 * @author SAP SE
-	 * @version 1.56.5
+	 * @version 1.56.6
 	 * @experimental Since 1.56.0
 	 */
 	var sVariantParameterName = "sap-ui-fl-control-variant-id";
@@ -39,14 +39,15 @@ sap.ui.define([
 		initializeHashRegister: function () {
 			this._oHashRegister = {
 				currentIndex: null,
-				hashParams: []
+				hashParams: [],
+				variantControlIds: []
 			};
 
 			// register navigation filter for custom navigation
 			VariantUtil._setOrUnsetCustomNavigationForParameter.call(this, true);
 		},
 
-		attachHashHandlers: function () {
+		attachHashHandlers: function (sVariantManagementReference) {
 			// only for first variant management control with 'updateVariantInURL' property set to true
 			if (this._oHashRegister.currentIndex === null) {
 				var oHashChanger = HashChanger.getInstance();
@@ -65,12 +66,19 @@ sap.ui.define([
 					oHashChanger.detachEvent("hashReplaced", VariantUtil._handleHashReplaced, this);
 					// detach navigation handler
 					oHashChanger.detachEvent("hashChanged", VariantUtil._navigationHandler, this);
+					// clear variant controller map
+					this.oVariantController.resetMap();
 					// destroy VariantModel
 					this.destroy();
 					fnOriginalDestroy.apply(this.oComponent, arguments);
 				}.bind(this);
 
 				VariantUtil._navigationHandler.call(this);
+			}
+			if (Array.isArray(this._oHashRegister.variantControlIds[this._oHashRegister.variantControlIds])) {
+				this._oHashRegister.variantControlIds[this._oHashRegister.currentIndex].push(sVariantManagementReference);
+			} else {
+				this._oHashRegister.variantControlIds[this._oHashRegister.currentIndex] = [sVariantManagementReference];
 			}
 		},
 
@@ -122,7 +130,8 @@ sap.ui.define([
 						//if direction ambiguity is present reset hash register
 						this._oHashRegister.currentIndex = 0;
 						this._oHashRegister.hashParams = [];
-						this.switchToDefaultVariant();
+						this._oHashRegister.variantControlIds = [];
+						this.switchToDefaultForVariant();
 						break;
 					default:
 						return;
@@ -140,10 +149,10 @@ sap.ui.define([
 
 					// check if variant management control for previously existing register entry exists
 					// if yes, reset to default variant
-					var aExisitingParams = this._oHashRegister.hashParams[this._oHashRegister.currentIndex];
+					var aExisitingParams = this._oHashRegister.variantControlIds[this._oHashRegister.currentIndex];
 					if (Array.isArray(aExisitingParams)){
 						aExisitingParams.forEach(function(sParam){
-							this.switchToDefaultVariant(sParam);
+							this.switchToDefaultForVariantManagement(sParam);
 						}.bind(this));
 					}
 
