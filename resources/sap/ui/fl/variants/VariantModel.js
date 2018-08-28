@@ -32,7 +32,7 @@ sap.ui.define([
 	 * @class Variant Model implementation for JSON format
 	 * @extends sap.ui.model.json.JSONModel
 	 * @author SAP SE
-	 * @version 1.58.0
+	 * @version 1.58.1
 	 * @param {object} oData either the URL where to load the JSON from or a JS object
 	 * @param {object} oFlexController the FlexController instance for the component which uses the variant model
 	 * @param {object} oComponent Component instance that is currently loading
@@ -278,7 +278,7 @@ sap.ui.define([
 	VariantModel.prototype._getVariantTitleCount = function(sNewText, sVariantManagementReference) {
 		var oData = this.getData();
 		return oData[sVariantManagementReference].variants.reduce( function (iCount, oVariant) {
-			if (sNewText === oVariant.title && oVariant.visible) {
+			if (sNewText.toLowerCase() === oVariant.title.toLowerCase() && oVariant.visible) {
 				iCount++;
 			}
 			return iCount;

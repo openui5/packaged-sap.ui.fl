@@ -16,7 +16,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.transport.TransportSelection
 	 * @constructor
 	 * @author SAP SE
-	 * @version 1.58.0
+	 * @version 1.58.1
 	 * @since 1.38.0
 	 * Helper object to select an ABAP transport for an LREP object. This is not a generic utility to select a transport request, but part
 	 *        of the SmartVariant control.
