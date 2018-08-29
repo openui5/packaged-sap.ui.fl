@@ -15,7 +15,7 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 	 * @alias sap.ui.fl.Cache
 	 * @experimental Since 1.25.0
 	 * @author SAP SE
-	 * @version 1.52.17
+	 * @version 1.52.18
 	 */
 	var Cache = function () {
 	};
@@ -193,7 +193,7 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 
 		// in case of no changes present according to async hints
 		if (mPropertyBag && mPropertyBag.cacheKey === "<NO CHANGES>") {
-			return oChangesBundleLoadingPromise.then(function (aChanges) {
+			var currentLoadChanges = oChangesBundleLoadingPromise.then(function (aChanges) {
 				return {
 					changes: {
 						changes: aChanges,
@@ -202,6 +202,8 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 					componentClassName: sComponentName
 				};
 			});
+			oCacheEntry.promise = currentLoadChanges;
+			return currentLoadChanges;
 		}
 
 		var oChangesLoadingPromise = oLrepConnector.loadChanges(mComponent, mPropertyBag).then(function (oResult) {
