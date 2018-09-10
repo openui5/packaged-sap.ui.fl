@@ -53,7 +53,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexController
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.58.1
+	 * @version 1.58.2
 	 */
 	var FlexController = function (sComponentName, sAppVersion) {
 		this._oChangePersistence = undefined;
@@ -673,6 +673,10 @@ sap.ui.define([
 				// changeHandler can return a different control, e.g. case where a visible UI control replaces the stashed control
 				if (oInitializedControl instanceof Element) {
 					oControl = oInitializedControl;
+					// the newly rendered control could have custom data set from the XML modifier
+					mAppliedChangesCustomData = this._getAppliedCustomData(oChange, oControl, oModifier);
+					sAppliedChanges = mAppliedChangesCustomData.customDataValue;
+					oAppliedChangeCustomData = mAppliedChangesCustomData.customData;
 				}
 				if (!bRevertible && oSettings && oSettings._oSettings.recordUndo && oRtaControlTreeModifier){
 					oChange.setUndoOperations(oRtaControlTreeModifier.stopRecordingUndo());

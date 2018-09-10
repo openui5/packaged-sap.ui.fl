@@ -98,5 +98,22 @@
         "references": []
       }
     ]
+  },
+  "1.58.2": {
+    "date": "September 2018",
+    "notes": [
+      {
+        "id": "eab5758690fc31219c10c6438e5b42dd15b34f6f",
+        "type": "FIX",
+        "text": "sap.ui.fl - MoveControls change handler RevertData with id",
+        "references": []
+      },
+      {
+        "id": "f9b99e1967287a48ccf50a4561b46a7723d0d4bd",
+        "type": "FIX",
+        "text": " sap.ui.fl : Caching of flex/settings request",
+        "references": []
+      }
+    ]
   }
 }

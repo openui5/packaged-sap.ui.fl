@@ -13,7 +13,7 @@ function(Base, FlexUtils) {
 	 *
 	 * @alias sap.ui.fl.changeHandler.MoveControls
 	 * @author SAP SE
-	 * @version 1.58.1
+	 * @version 1.58.2
 	 * @experimental Since 1.46
 	 */
 	var MoveControls = { };
@@ -182,7 +182,7 @@ function(Base, FlexUtils) {
 				aRevertData.unshift({
 					index: iIndex,
 					aggregation: sSourceAggregation,
-					sourceParent: oSourceParent
+					sourceParentId: oModifier.getId(oSourceParent)
 				});
 			}
 
@@ -235,9 +235,11 @@ function(Base, FlexUtils) {
 
 			var iInsertIndex = mMovedElement.sourceIndex;
 			if (aRevertData) {
-				oSourceParent = aRevertData[iElementIndex].sourceParent;
-				sSourceAggregation = aRevertData[iElementIndex].aggregation;
-				iInsertIndex = aRevertData[iElementIndex].index;
+				var mRevertData = aRevertData[iElementIndex];
+				sSourceAggregation = mRevertData.aggregation;
+				iInsertIndex = mRevertData.index;
+				//TODO: If revert needs to be done on XML, this has to be adjusted
+				oSourceParent = oModifier.byId(mRevertData.sourceParentId, oView);
 			}
 
 			oModifier.removeAggregation(oTargetParent, sTargetAggregation, oMovedElement);

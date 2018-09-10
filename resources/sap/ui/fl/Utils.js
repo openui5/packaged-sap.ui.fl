@@ -34,7 +34,7 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.Utils
 	 * @author SAP SE
-	 * @version 1.58.1
+	 * @version 1.58.2
 	 * @experimental Since 1.25.0
 	 */
 	var Utils = {
@@ -883,8 +883,9 @@ sap.ui.define([
 					hasher.changed.active = false; //disable changed signal
 
 					var mTechnicalParameters = Utils.getTechnicalParametersForComponent(oComponent);
+					// if mTechnicalParameters are not available we write a warning and continue updating the hash
 					if (!mTechnicalParameters) {
-						this.log.error("Component instance not provided, so technical parameters in component data and browser history remain unchanged");
+						this.log.warning("Component instance not provided, so technical parameters in component data and browser history remain unchanged");
 					}
 					if (aValues.length === 0) {
 						delete oParsedHash.params[sParameterName];

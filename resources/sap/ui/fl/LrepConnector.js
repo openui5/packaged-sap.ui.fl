@@ -27,7 +27,7 @@ sap.ui.define([
 	 * @private
 	 * @sap-restricted
 	 * @author SAP SE
-	 * @version 1.58.1
+	 * @version 1.58.2
 	 */
 	var Connector = function(mParameters) {
 		this._initClientParam();
@@ -48,6 +48,7 @@ sap.ui.define([
 	Connector.prototype._sLanguage = undefined;
 	Connector.prototype._aSentRequestListeners = [];
 	Connector.prototype._sRequestUrlPrefix = "";
+	Connector._oLoadSettingsPromise = undefined;
 
 	/**
 	 * Gets the availability status of the flexibility service.
@@ -473,14 +474,16 @@ sap.ui.define([
 	 * @public
 	 */
 	Connector.prototype.loadSettings = function() {
-		var sUri = "/sap/bc/lrep/flex/settings";
+		if (!Connector._oLoadSettingsPromise) {
+			var sUri = "/sap/bc/lrep/flex/settings";
 
-		if (this._sClient) {
-			sUri += "?sap-client=" + this._sClient;
+			if (this._sClient) {
+				sUri += "?sap-client=" + this._sClient;
+			}
+			Connector._oLoadSettingsPromise = this.send(sUri, undefined, undefined, {});
 		}
 
-		return this.send(sUri, undefined, undefined, {})
-			.then(function(oResponse) {
+		return Connector._oLoadSettingsPromise.then(function(oResponse) {
 				Connector._bServiceAvailability = true;
 				return oResponse.response;
 			}, function(oError) {
