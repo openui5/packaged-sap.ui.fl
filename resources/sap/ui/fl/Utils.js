@@ -36,7 +36,7 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.Utils
 	 * @author SAP SE
-	 * @version 1.56.7
+	 * @version 1.56.10
 	 * @experimental Since 1.25.0
 	 */
 	var Utils = {
@@ -1045,6 +1045,31 @@ sap.ui.define([
 		 */
 		isCustomerDependentLayer : function(sLayerName) {
 			return (["CUSTOMER", "CUSTOMER_BASE"].indexOf(sLayerName) > -1);
+		},
+
+		/**
+		 * Checks if an object is in an array or not and returns the index or -1
+		 *
+		 * @param {object[]} aArray Array of objects
+		 * @param {object} oObject object that should be part of the array
+		 * @returns {integer} Returns the index of the object in the array, -1 if it is not in the array
+		 * @public
+		 */
+		indexOfInArrayOfObjects: function(aArray, oObject) {
+			var iObjectIndex = -1;
+			aArray.some(function(oArrayObject, iIndex) {
+				var bSameNumberOfAttributes = Object.keys(oArrayObject).length === Object.keys(oObject).length;
+				var bContains = bSameNumberOfAttributes && !Object.keys(oArrayObject).some(function(sKey) {
+					return oArrayObject[sKey] !== oObject[sKey];
+				});
+
+				if (bContains) {
+					iObjectIndex = iIndex;
+				}
+
+				return bContains;
+			});
+			return iObjectIndex;
 		},
 
 		/**

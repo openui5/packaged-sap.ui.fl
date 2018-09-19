@@ -16,7 +16,7 @@ sap.ui.define([
 	 *
 	 * @alias sap.ui.fl.changeHandler.PropertyBindingChange
 	 * @author SAP SE
-	 * @version 1.56.7
+	 * @version 1.56.10
 	 * @since 1.38
 	 * @private
 	 * @experimental Since 1.38. This class is experimental and provides only limited functionality. Also the API might be changed in future.
@@ -37,8 +37,9 @@ sap.ui.define([
 		var vPropertyValue = oDef.content.newBinding;
 		var oModifier = mPropertyBag.modifier;
 
+		var vOriginalValue = oModifier.getPropertyBinding(oControl, sPropertyName) || oModifier.getProperty(oControl, sPropertyName);
 		oChange.setRevertData({
-			originalValue: oModifier.getPropertyBinding(oControl, sPropertyName)
+			originalValue: vOriginalValue
 		});
 
 		oModifier.setPropertyBinding(oControl, sPropertyName, vPropertyValue);
