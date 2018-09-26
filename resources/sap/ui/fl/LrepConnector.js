@@ -19,7 +19,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.LrepConnector
 	 * @experimental Since 1.25.0
 	 * @author SAP SE
-	 * @version 1.44.35
+	 * @version 1.44.36
 	 */
 	var Connector = function(mParameters) {
 		this._initClientParam();

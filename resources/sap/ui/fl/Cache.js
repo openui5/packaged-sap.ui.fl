@@ -15,7 +15,7 @@ sap.ui.define(["sap/ui/fl/Utils"], function (Utils) {
 	 * @alias sap.ui.fl.Cache
 	 * @experimental Since 1.25.0
 	 * @author SAP SE
-	 * @version 1.44.35
+	 * @version 1.44.36
 	 */
 	var Cache = function () {
 	};
