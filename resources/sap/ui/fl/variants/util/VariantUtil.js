@@ -30,7 +30,7 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.variants.util.VariantUtil
 	 * @author SAP SE
-	 * @version 1.56.10
+	 * @version 1.56.11
 	 * @experimental Since 1.56.0
 	 */
 	var sVariantParameterName = "sap-ui-fl-control-variant-id";
