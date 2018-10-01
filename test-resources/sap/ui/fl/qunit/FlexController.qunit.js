@@ -174,7 +174,9 @@ function (
 		QUnit.test("_resolveGetChangesForView does not crash and logs an error if dependent selectors are missing", function (assert) {
 			var oAppComponent = new UIComponent();
 
-			sandbox.stub(JsControlTreeModifier, "bySelector").returns({});
+			sandbox.stub(JsControlTreeModifier, "bySelector")
+			.onCall(0).returns({})
+			.onCall(1).returns();
 			sandbox.stub(JsControlTreeModifier, "getControlType").returns("aType");
 
 			var oControl = new Control("testComponent---localeId");
@@ -193,8 +195,8 @@ function (
 			oSelector.id = "id";
 			oSelector.idIsLocal = true;
 
-			var sDependentSelectorId = "dependent-selector-id";
-			sandbox.stub(this.oChange, "getDependentControlIdList").returns([sDependentSelectorId]);
+			var sDependentSelectorSelector = {id: "dependent-selector-id", idIsLocal: true};
+			sandbox.stub(this.oChange, "getDependentControlSelectorList").returns([sDependentSelectorSelector]);
 
 			this.oChange.selector = oSelector;
 			this.oChange.getSelector = function(){return oSelector;};
@@ -511,7 +513,7 @@ function (
 		QUnit.test("addChange shall add a change", function(assert) {
 			var oControl = new Control("Id1");
 
-			sandbox.stub(Utils, "getAppComponentForControl").returns(oComponent);
+			sandbox.stub(Utils, "getSelectorComponentForControl").returns(oComponent);
 
 			var fChangeHandler = sinon.stub();
 			fChangeHandler.applyChange = sinon.stub();
@@ -606,7 +608,7 @@ function (
 					};
 				}
 			};
-			var oOuterAppComponent = {
+			var oAppComponent = {
 				getModel: function(sModel) {
 					assert.strictEqual(sModel, "$FlexVariants", "then variant model called on the app component");
 					return oModel;
@@ -614,7 +616,11 @@ function (
 			};
 			sandbox.stub(this.oFlexController._oChangePersistence, "_addPropagationListener");
 			sandbox.stub(Utils, "getAppComponentForControl")
-				.withArgs(oComponent, true).returns(oOuterAppComponent)
+				.callThrough()
+				.withArgs(oComponent).returns(oAppComponent);
+
+			sandbox.stub(Utils, "getSelectorComponentForControl")
+				.callThrough()
 				.withArgs(oComponent).returns(oComponent);
 
 			var oChange = new Change(labelChangeContent);
@@ -667,7 +673,7 @@ function (
 		QUnit.test("addChange shall add a change and contain the applicationVersion in the connector", function(assert) {
 			var oControl = new Control();
 
-			sandbox.stub(Utils, "getAppComponentForControl").returns(oComponent);
+			sandbox.stub(Utils, "getSelectorComponentForControl").returns(oComponent);
 
 			var fChangeHandler = sinon.stub();
 			fChangeHandler.applyChange = sinon.stub();
@@ -698,7 +704,7 @@ function (
 		QUnit.test("addChange shall add a change using the local id with respect to the root component as selector", function(assert) {
 			var oControl = new Control("testComponent---Id1");
 
-			sandbox.stub(Utils, "getAppComponentForControl").returns(oComponent);
+			sandbox.stub(Utils, "getSelectorComponentForControl").returns(oComponent);
 
 			var fChangeHandler = sinon.stub();
 			fChangeHandler.applyChange = sinon.stub();
@@ -745,7 +751,7 @@ function (
 					}
 				}
 			});
-			sandbox.stub(Utils, "getAppComponentForControl").returns(oComponent);
+			sandbox.stub(Utils, "getSelectorComponentForControl").returns(oComponent);
 			var oSetRequestSpy = sandbox.spy(Change.prototype,"setRequest");
 			//Call CUT
 			var oChange = this.oFlexController.addChange(oChangeParameters, oControl);
@@ -958,7 +964,8 @@ function (
 			assert.expect(2);
 			var oControl = new Control();
 			var oChangeSpecificData = {
-				changeType: "hideControl"
+				changeType: "hideControl",
+				selector: { "id": "control1" }
 			};
 
 			sandbox.stub(this.oFlexController, "checkTargetAndApplyChange").returns(Promise.resolve({success: false, error: new Error("myError")}));
@@ -978,7 +985,8 @@ function (
 			assert.expect(2);
 			var oControl = new Control();
 			var oChangeSpecificData = {
-				changeType: "hideControl"
+				changeType: "hideControl",
+				selector: { "id": "control1" }
 			};
 
 			sandbox.stub(this.oFlexController, "checkTargetAndApplyChange").returns(Promise.resolve({success: false}));
@@ -1005,7 +1013,7 @@ function (
 			var sProvidedContext = "ctx001";
 			var aProvidedContext = [sProvidedContext];
 			sandbox.stub(ContextManager, "_getContextIdsFromUrl").returns(aProvidedContext);
-			sandbox.stub(Utils, "getAppComponentForControl").returns(oComponent);
+			sandbox.stub(Utils, "getSelectorComponentForControl").returns(oComponent);
 
 			var oDummyChangeHandler = {
 					completeChangeContent: function () {}
@@ -1045,7 +1053,7 @@ function (
 
 		QUnit.test("creates a change for controls with a stable id which has not the app components id as a prefix", function (assert) {
 
-			sandbox.stub(Utils, "getAppComponentForControl").returns(oComponent);
+			sandbox.stub(Utils, "getSelectorComponentForControl").returns(oComponent);
 			var oDummyChangeHandler = {
 				completeChangeContent: function () {}
 			};
@@ -1113,7 +1121,7 @@ function (
 		});
 
 		QUnit.test("creates a change containing valid applicationVersions in developerMode", function (assert) {
-			sandbox.stub(Utils, "getAppComponentForControl").returns(oComponent);
+			sandbox.stub(Utils, "getSelectorComponentForControl").returns(oComponent);
 			var oDummyChangeHandler = {
 				completeChangeContent: function () {}
 			};
@@ -1128,7 +1136,7 @@ function (
 		});
 
 		QUnit.test("creates a change containing valid applicationVersions in developerMode and ADAPTATION_PROJECT scenario", function (assert) {
-			sandbox.stub(Utils, "getAppComponentForControl").returns(oComponent);
+			sandbox.stub(Utils, "getSelectorComponentForControl").returns(oComponent);
 			var oDummyChangeHandler = {
 				completeChangeContent: function () {}
 			};
@@ -1143,7 +1151,7 @@ function (
 		});
 
 		QUnit.test("creates a change containing valid applicationVersions in developerMode and AppVariant scenario", function (assert) {
-			sandbox.stub(Utils, "getAppComponentForControl").returns(oComponent);
+			sandbox.stub(Utils, "getSelectorComponentForControl").returns(oComponent);
 			var oDummyChangeHandler = {
 				completeChangeContent: function () {}
 			};
@@ -1471,7 +1479,7 @@ function (
 				getId: function () {
 					return "fileNameChange0";
 				},
-				getDependentIdList: function () {
+				getDependentSelectorList: function () {
 					return ["group1-1"];
 				}
 			};
@@ -1640,7 +1648,8 @@ function (
 			return {
 				"mChanges": mChanges,
 				"mDependencies": mDependencies,
-				"mDependentChangesOnMe": mDependentChangesOnMe
+				"mDependentChangesOnMe": mDependentChangesOnMe,
+				"aChanges": [oChange1, oChange2, oChange3, oChange4, oChange5]
 			};
 		}
 
@@ -1702,7 +1711,7 @@ function (
 			oControlField1.destroy();
 			oControlField2.destroy();
 			this.oFlexController._oChangePersistence._mChangesInitial = {mChanges: {}, mDependencies: {}, mDependentChangesOnMe: {}};
-			this.oFlexController._oChangePersistence._mChanges = {mChanges: {}, mDependencies: {}, mDependentChangesOnMe: {}};
+			this.oFlexController._oChangePersistence._mChanges = {mChanges: {}, mDependencies: {}, mDependentChangesOnMe: {}, aChanges: []};
 		});
 
 		QUnit.test("_applyChangesOnControl dependency test 3 - mixed changehandler (sync, async, sync, async, sync)", function (assert) {

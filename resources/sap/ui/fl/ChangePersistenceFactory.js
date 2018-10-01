@@ -15,7 +15,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.ChangePersistenceFactory
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.58.2
+	 * @version 1.58.3
 	 */
 	var ChangePersistenceFactory = {};
 
@@ -60,7 +60,7 @@ sap.ui.define([
 	ChangePersistenceFactory.getChangePersistenceForControl = function(oControl) {
 		var sComponentId;
 		sComponentId = this._getComponentClassNameForControl(oControl);
-		var sAppVersion = Utils.getAppVersionFromManifest(Utils.getAppComponentForControl(oControl, true).getManifest());
+		var sAppVersion = Utils.getAppVersionFromManifest(Utils.getAppComponentForControl(oControl).getManifest());
 		return ChangePersistenceFactory.getChangePersistenceForComponent(sComponentId, sAppVersion);
 	};
 

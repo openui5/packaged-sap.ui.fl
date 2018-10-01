@@ -22,7 +22,7 @@ sap.ui.define([
 	 * @class
 	 * @constructor
 	 * @author SAP SE
-	 * @version 1.58.2
+	 * @version 1.58.3
 	 * @experimental Since 1.27.0
 	 */
 	var XmlPreprocessorImpl = function(){
@@ -58,9 +58,13 @@ sap.ui.define([
 				return Promise.resolve(oView);
 			}
 
-			var oOuterAppComponent = Utils.getAppComponentForControl(oComponent, true);
-			var sFlexReference = Utils.getComponentClassName(oOuterAppComponent);
-			var sAppVersion = Utils.getAppVersionFromManifest(oOuterAppComponent.getManifest());
+			var oAppComponent = Utils.getAppComponentForControl(oComponent);
+			if (!Utils.isApplication(oAppComponent.getManifestObject())) {
+				//we only consider components whose type is application. Otherwise, we might send request for components that can never have changes.
+				return Promise.resolve(oView);
+			}
+			var sFlexReference = Utils.getComponentClassName(oAppComponent);
+			var sAppVersion = Utils.getAppVersionFromManifest(oAppComponent.getManifest());
 			var oChangePersistence = ChangePersistenceFactory.getChangePersistenceForComponent(sFlexReference, sAppVersion);
 			return oChangePersistence.getCacheKey().then(function(sCacheKey){
 				if (!sCacheKey || sCacheKey === ChangePersistence.NOTAG) {
@@ -96,16 +100,16 @@ sap.ui.define([
 	 * @public
 	 */
 	XmlPreprocessorImpl.getCacheKey = function(mProperties) {
-		var oComponent = sap.ui.getCore().getComponent(mProperties.componentId);
-		var oOuterAppComponent = Utils.getAppComponentForControl(oComponent, true);
+		var oComponent = Component.get(mProperties.componentId);
+		var oAppComponent = Utils.getAppComponentForControl(oComponent);
 
 		// no caching possible with startup parameter based variants
-		if (Utils.isVariantByStartupParameter(oOuterAppComponent)) {
+		if (Utils.isVariantByStartupParameter(oAppComponent)) {
 			return Promise.resolve();
 		}
 
-		var sFlexReference = Utils.getComponentClassName(oOuterAppComponent);
-		var sAppVersion = Utils.getAppVersionFromManifest(oOuterAppComponent.getManifest());
+		var sFlexReference = Utils.getComponentClassName(oAppComponent);
+		var sAppVersion = Utils.getAppVersionFromManifest(oAppComponent.getManifest());
 		var oChangePersistence = ChangePersistenceFactory.getChangePersistenceForComponent(sFlexReference, sAppVersion);
 		return oChangePersistence.getCacheKey();
 	};

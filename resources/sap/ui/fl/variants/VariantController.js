@@ -34,7 +34,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.variants.VariantController
 	 * @experimental Since 1.50.0
 	 * @author SAP SE
-	 * @version 1.58.2
+	 * @version 1.58.3
 	 */
 	var VariantController = function (sComponentName, sAppVersion, oChangeFileContent) {
 		this._sComponentName = sComponentName || "";

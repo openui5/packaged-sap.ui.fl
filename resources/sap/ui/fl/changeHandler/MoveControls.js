@@ -13,7 +13,7 @@ function(Base, FlexUtils) {
 	 *
 	 * @alias sap.ui.fl.changeHandler.MoveControls
 	 * @author SAP SE
-	 * @version 1.58.2
+	 * @version 1.58.3
 	 * @experimental Since 1.46
 	 */
 	var MoveControls = { };

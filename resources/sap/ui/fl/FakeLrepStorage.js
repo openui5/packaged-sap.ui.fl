@@ -14,7 +14,7 @@ sap.ui.define(function () {
 	 * @class
 	 *
 	 * @author SAP SE
-	 * @version 1.58.2
+	 * @version 1.58.3
 	 *
 	 * @private
 	 * @static

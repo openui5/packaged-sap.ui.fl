@@ -26,7 +26,7 @@ function(
 	 * @class
 	 * @constructor
 	 * @author SAP SE
-	 * @version 1.58.2
+	 * @version 1.58.3
 	 * @experimental Since 1.27.0
 	 */
 	var PreprocessorImpl = function(){
@@ -53,9 +53,13 @@ function(
 			}
 
 			var oComponent = Component.get(sComponentId);
-			var oOuterAppComponent = Utils.getAppComponentForControl(oComponent, true);
-			var sFlexReference = Utils.getComponentClassName(oOuterAppComponent);
-			var sAppVersion = Utils.getAppVersionFromManifest(oOuterAppComponent.getManifest());
+			var oAppComponent = Utils.getAppComponentForControl(oComponent);
+			if (!Utils.isApplication(oAppComponent.getManifestObject())) {
+				//we only consider components whose type is application. Otherwise, we might send request for components that can never have changes.
+				return Promise.resolve([]);
+			}
+			var sFlexReference = Utils.getComponentClassName(oAppComponent);
+			var sAppVersion = Utils.getAppVersionFromManifest(oAppComponent.getManifest());
 
 			var oChangePersistence = ChangePersistenceFactory.getChangePersistenceForComponent(sFlexReference, sAppVersion);
 			return oChangePersistence.getChangesForComponent().then(function(aChanges) {

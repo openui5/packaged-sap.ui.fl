@@ -32,7 +32,7 @@ sap.ui.define([
 	 * @class Variant Model implementation for JSON format
 	 * @extends sap.ui.model.json.JSONModel
 	 * @author SAP SE
-	 * @version 1.58.2
+	 * @version 1.58.3
 	 * @param {object} oData either the URL where to load the JSON from or a JS object
 	 * @param {object} oFlexController the FlexController instance for the component which uses the variant model
 	 * @param {object} oComponent Component instance that is currently loading
@@ -731,15 +731,15 @@ sap.ui.define([
 		var sVariantManagementReference = oPropertyBinding.getContext().getPath().replace(/^\//, '');
 
 		if (this.oData[sVariantManagementReference].currentVariant !== this.oData[sVariantManagementReference].originalCurrentVariant) {
-			this.updateCurrentVariant(sVariantManagementReference, oPropertyBinding.getValue(), Utils.getAppComponentForControl(mControl.control));
+			this.updateCurrentVariant(sVariantManagementReference, oPropertyBinding.getValue(), Utils.getSelectorComponentForControl(mControl.control));
 		}
 	};
 
 	VariantModel.prototype._handleSave = function(oEvent) {
 		var oVariantManagementControl = oEvent.getSource();
 		var bSetDefault = oEvent.getParameter("def");
-		var oAppComponent = Utils.getAppComponentForControl(oVariantManagementControl);
-		var sVariantManagementReference = this._getLocalId(oVariantManagementControl.getId(), oAppComponent);
+		var oComponent = Utils.getSelectorComponentForControl(oVariantManagementControl);
+		var sVariantManagementReference = this._getLocalId(oVariantManagementControl.getId(), oComponent);
 		var sSourceVariantReference = this.getCurrentVariantReference(sVariantManagementReference);
 		var aVariantChanges = this.oVariantController.getVariantChanges(sVariantManagementReference, sSourceVariantReference);
 
@@ -765,7 +765,7 @@ sap.ui.define([
 			var sNewVariantReference = Utils.createDefaultFileName("Copy");
 			var mPropertyBag = {
 					variantManagementReference: sVariantManagementReference,
-					appComponent: oAppComponent,
+					appComponent: oComponent,
 					layer: Utils.getCurrentLayer(true),
 					title: oEvent.getParameter("name"),
 					sourceVariantReference: sSourceVariantReference,
@@ -779,7 +779,7 @@ sap.ui.define([
 							changeType: "setDefault",
 							defaultVariant: sNewVariantReference,
 							originalDefaultVariant: this.oData[sVariantManagementReference].defaultVariant,
-							appComponent: oAppComponent,
+							appComponent: oComponent,
 							layer: Utils.getCurrentLayer(true),
 							variantManagementReference: sVariantManagementReference
 						};
@@ -819,7 +819,7 @@ sap.ui.define([
 
 	VariantModel.prototype.registerToModel = function(oVariantManagementControl) {
 		var sVariantManagementReference =
-			this._getLocalId(oVariantManagementControl, Utils.getAppComponentForControl(oVariantManagementControl));
+			this._getLocalId(oVariantManagementControl, Utils.getSelectorComponentForControl(oVariantManagementControl));
 
 		this._ensureStandardVariantExists(sVariantManagementReference);
 
