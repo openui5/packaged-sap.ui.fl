@@ -49,7 +49,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.FlexController
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.56.12
+	 * @version 1.56.13
 	 */
 	var FlexController = function (sComponentName, sAppVersion) {
 		this._oChangePersistence = undefined;
@@ -665,7 +665,7 @@ sap.ui.define([
 					});
 				}
 				delete oChange.PROCESSING;
-				oChange.APPLIED = true;
+				oChange.PROCESSED = true;
 				return {success: true};
 			}.bind(this))
 
@@ -702,6 +702,7 @@ sap.ui.define([
 					});
 				}
 				delete oChange.PROCESSING;
+				oChange.PROCESSED = true;
 				return {success: false, error: ex};
 			}.bind(this));
 		}
@@ -1000,7 +1001,7 @@ sap.ui.define([
 
 	FlexController.prototype._checkIfDependencyIsStillValid = function(oAppComponent, oModifier, sChangeId) {
 		var oChange = Utils.getChangeFromChangesMap(this._oChangePersistence._mChanges.mChanges, sChangeId);
-		if (!oChange.APPLIED) {
+		if (!oChange.PROCESSED) {
 			return true;
 		}
 
@@ -1037,11 +1038,11 @@ sap.ui.define([
 
 			// if a change was already processed and is not applied anymore,
 			// then the control was destroyed and recreated. In this case we need to recreate/copy the dependencies.
-			if (oChange.APPLIED && !this._isChangeCurrentlyApplied(oControl, oChange, mPropertyBag.modifier)) {
+			if (oChange.PROCESSED && !this._isChangeCurrentlyApplied(oControl, oChange, mPropertyBag.modifier)) {
 				mChangesMap = this._oChangePersistence.copyDependenciesFromInitialChangesMap(oChange, this._checkIfDependencyIsStillValid.bind(this, oAppComponent, mPropertyBag.modifier));
 				mDependencies = mChangesMap.mDependencies;
 				mDependentChangesOnMe = mChangesMap.mDependentChangesOnMe;
-				delete oChange.APPLIED;
+				delete oChange.PROCESSED;
 			}
 
 			if (!mDependencies[oChange.getId()]) {
