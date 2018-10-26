@@ -30,7 +30,7 @@ sap.ui.define([
 	 * @namespace
 	 * @alias sap.ui.fl.variants.util.VariantUtil
 	 * @author SAP SE
-	 * @version 1.58.4
+	 * @version 1.58.5
 	 * @experimental Since 1.56.0
 	 */
 	var sVariantParameterName = "sap-ui-fl-control-variant-id";
@@ -252,7 +252,10 @@ sap.ui.define([
 		},
 
 		getCurrentHashParamsFromRegister: function () {
-			if (jQuery.isNumeric(this._oHashRegister.currentIndex)) {
+			if (
+				jQuery.isNumeric(this._oHashRegister.currentIndex)
+				&& this._oHashRegister.currentIndex >= 0
+			) {
 				// return clone
 				return Array.prototype.slice.call(this._oHashRegister.hashParams[this._oHashRegister.currentIndex]);
 			}

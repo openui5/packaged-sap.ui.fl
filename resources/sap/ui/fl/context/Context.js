@@ -14,7 +14,7 @@ sap.ui.define(['sap/ui/base/ManagedObject', "sap/base/Log"], function(ManagedObj
 	 * @extends sap.ui.base.ManagedObject
 	 *
 	 * @author SAP SE
-	 * @version 1.58.4
+	 * @version 1.58.5
 	 *
 	 * @constructor
 	 * @private

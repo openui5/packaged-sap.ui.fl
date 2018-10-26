@@ -22,7 +22,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.Cache
 	 * @experimental Since 1.25.0
 	 * @author SAP SE
-	 * @version 1.58.4
+	 * @version 1.58.5
 	 */
 	var Cache = function () {
 	};

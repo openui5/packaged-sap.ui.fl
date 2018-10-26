@@ -15,7 +15,7 @@ sap.ui.define([
 	 * Change handler for unhiding of a control.
 	 * @alias sap.ui.fl.changeHandler.UnhideControl
 	 * @author SAP SE
-	 * @version 1.58.4
+	 * @version 1.58.5
 	 * @experimental Since 1.27.0
 	 */
 	var UnhideControl = {};
