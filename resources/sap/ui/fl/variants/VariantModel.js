@@ -30,7 +30,7 @@ sap.ui.define([
 	 * @class Variant Model implementation for JSON format
 	 * @extends sap.ui.model.json.JSONModel
 	 * @author SAP SE
-	 * @version 1.56.13
+	 * @version 1.56.14
 	 * @param {object} oData either the URL where to load the JSON from or a JS object
 	 * @param {object} oFlexController the FlexController instance for the component which uses the variant model
 	 * @param {object} oComponent Component instance that is currently loading
@@ -96,7 +96,7 @@ sap.ui.define([
 
 		//Delete dirty personalized changes
 		if (this.oData[sVariantManagementReference].modified) {
-			aVariantControlChanges = this.oVariantController.getVariantChanges(sVariantManagementReference, sCurrentVariantReference);
+			aVariantControlChanges = this.oVariantController.getVariantChanges(sVariantManagementReference, sCurrentVariantReference, true);
 			this._removeDirtyChanges(aVariantControlChanges, sVariantManagementReference, sCurrentVariantReference);
 			this.oData[sVariantManagementReference].modified = false;
 		}
@@ -242,7 +242,7 @@ sap.ui.define([
 	VariantModel.prototype._removeDirtyChanges = function(aVariantControlChanges, sVariantManagementReference, sVariantReference) {
 		var oAppComponent = Utils.getAppComponentForControl(this.oComponent);
 		var aChanges = aVariantControlChanges.map(function(oChange) {
-			return oChange.fileName;
+			return oChange.getDefinition().fileName;
 		});
 
 		var bFiltered;
@@ -274,11 +274,18 @@ sap.ui.define([
 	VariantModel.prototype._duplicateVariant = function(mPropertyBag) {
 		var sNewVariantReference = mPropertyBag.newVariantReference,
 			sSourceVariantReference = mPropertyBag.sourceVariantReference,
+			sVariantManagementReference = mPropertyBag.variantManagementReference,
 			oSourceVariant = this.getVariant(sSourceVariantReference);
+
+		var aVariantChanges =
+			this.oVariantController.getVariantChanges(sVariantManagementReference, sSourceVariantReference, true)
+			.map(function(oVariantChange) {
+				return oVariantChange.getDefinition();
+			});
 
 		var oDuplicateVariant = {
 			content: {},
-			controlChanges: JSON.parse(JSON.stringify(oSourceVariant.controlChanges)),
+			controlChanges: aVariantChanges,
 			variantChanges: {}
 		};
 
@@ -304,17 +311,18 @@ sap.ui.define([
 
 		var aVariantChanges = oDuplicateVariant.controlChanges.slice();
 
-		var oDuplicateChange = {};
+		var oDuplicateChangeData = {};
+		var oDuplicateChangeContent;
 		oDuplicateVariant.controlChanges = aVariantChanges.reduce(function (aSameLayerChanges, oChange) {
 			if (Utils.isLayerAboveCurrentLayer(oChange.layer) === 0) {
-				oDuplicateChange = jQuery.extend(true, {}, oChange);
-				oDuplicateChange.fileName = Utils.createDefaultFileName(oChange.changeType);
-				oDuplicateChange.variantReference = oDuplicateVariant.content.fileName;
-				if (!oDuplicateChange.support) {
-					oDuplicateChange.support = {};
+				oDuplicateChangeData = jQuery.extend(true, {}, oChange);
+				oDuplicateChangeData.variantReference = oDuplicateVariant.content.fileName;
+				if (!oDuplicateChangeData.support) {
+					oDuplicateChangeData.support = {};
 				}
-				oDuplicateChange.support.sourceChangeFileName = oChange.fileName;
-				aSameLayerChanges.push(oDuplicateChange);
+				oDuplicateChangeData.support.sourceChangeFileName = oChange.fileName;
+				oDuplicateChangeContent = Change.createInitialFileContent(oDuplicateChangeData);
+				aSameLayerChanges.push(new Change(oDuplicateChangeContent));
 			}
 			return aSameLayerChanges;
 		}, []);
@@ -371,14 +379,14 @@ sap.ui.define([
 			return (oChange.getVariantReference && oChange.getVariantReference() === oVariant.getId()) ||
 					oChange.getId() === oVariant.getId();
 		});
-		aChangesToBeDeleted.forEach( function(oChange) {
-			this.oFlexController._oChangePersistence.deleteChange(oChange);
-		}.bind(this));
 
 		return this.updateCurrentVariant(sVariantManagementReference, sSourceVariantFileName).then( function () {
 			var iIndex =  this.oVariantController.removeVariantFromVariantManagement(oVariant, sVariantManagementReference); /* VariantController */
 			this.oData[sVariantManagementReference].variants.splice(iIndex, 1); /* VariantModel */
 			this.checkUpdate(); /*For VariantManagement Control update*/
+			aChangesToBeDeleted.forEach( function(oChange) {
+				this.oFlexController._oChangePersistence.deleteChange(oChange);
+			}.bind(this));
 		}.bind(this));
 	};
 
@@ -694,13 +702,13 @@ sap.ui.define([
 		var oAppComponent = Utils.getAppComponentForControl(this.oComponent) || Utils.getAppComponentForControl(oVariantManagementControl);
 		var sVariantManagementReference = this._getLocalId(oVariantManagementControl.getId(), oAppComponent);
 		var sSourceVariantReference = this.getCurrentVariantReference(sVariantManagementReference);
-		var aVariantChanges = this.oVariantController.getVariantChanges(sVariantManagementReference, sSourceVariantReference);
+		var aVariantChanges = this.oVariantController.getVariantChanges(sVariantManagementReference, sSourceVariantReference, true);
 
 		if (oEvent.getParameter("overwrite")) {
 			// handle triggered "Save" button
 			var aAllDirtyChanges = this.oFlexController._oChangePersistence.getDirtyChanges();
 			var aChangeIds = aVariantChanges.map(function(oChange) {
-				return oChange.fileName;
+				return oChange.getDefinition().fileName;
 			});
 			var aDirtyChanges = aAllDirtyChanges.reduce(function(aReducedDirtyChanges, oDirtyChange) {
 				if (aChangeIds.indexOf(oDirtyChange.getId()) > -1) {

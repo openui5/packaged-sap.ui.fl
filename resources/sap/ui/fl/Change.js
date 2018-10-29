@@ -26,7 +26,7 @@ sap.ui.define([
 	 * @class Change class.
 	 * @extends sap.ui.base.ManagedObject
 	 * @author SAP SE
-	 * @version 1.56.13
+	 * @version 1.56.14
 	 * @alias sap.ui.fl.Change
 	 * @experimental Since 1.25.0
 	 */
@@ -800,6 +800,9 @@ sap.ui.define([
 	 * @param {String}  [oPropertyBag.projectId] The project id of the change file
 	 * @param {String}  [oPropertyBag.generator] The tool which is used to generate the change file
 	 * @param {Boolean}  [oPropertyBag.jsOnly] The change can only be applied with the JS modifier
+	 * @param {String}  [oPropertyBag.variantReference] The variant reference of a change belonging to a variant
+	 * @param {String}  [oPropertyBag.support.sourceChangeFileName] The file name of the source change in case of a copied change
+	 * @param {String}  [oPropertyBag.support.compositeCommand] The unique id defining which changes belong together in a composite command
 	 *
 	 * @returns {Object} The content of the change file
 	 *
@@ -818,8 +821,6 @@ sap.ui.define([
 			sFileType = oPropertyBag.isVariant ? "variant" : "change";
 		}
 
-		var sBaseId = oPropertyBag.reference && oPropertyBag.reference.replace(".Component", "") ||  "";
-
 		var oNewFile = {
 			fileName: oPropertyBag.id || Utils.createDefaultFileName(oPropertyBag.changeType),
 			fileType: sFileType,
@@ -832,7 +833,7 @@ sap.ui.define([
 			layer: oPropertyBag.layer || Utils.getCurrentLayer(oPropertyBag.isUserDependent),
 			texts: oPropertyBag.texts || {},
 			namespace: oPropertyBag.namespace || Utils.createNamespace(oPropertyBag, "changes"), //TODO: we need to think of a better way to create namespaces from Adaptation projects.
-			projectId: oPropertyBag.projectId || sBaseId,
+			projectId: oPropertyBag.projectId || (oPropertyBag.reference && oPropertyBag.reference.replace(".Component", "")) || "",
 			creation: "",
 			originalLanguage: Utils.getCurrentLanguage(),
 			conditions: {},
@@ -842,11 +843,13 @@ sap.ui.define([
 				service: oPropertyBag.service || "",
 				user: "",
 				sapui5Version: sap.ui.version,
-				compositeCommand: ""
+				sourceChangeFileName: oPropertyBag.support && oPropertyBag.support.sourceChangeFileName || "",
+				compositeCommand: oPropertyBag.support && oPropertyBag.support.compositeCommand || ""
 			},
 			dependentSelector: oPropertyBag.dependentSelector || {},
 			validAppVersions: oPropertyBag.validAppVersions || {},
-			jsOnly: oPropertyBag.jsOnly || false
+			jsOnly: oPropertyBag.jsOnly || false,
+			variantReference: oPropertyBag.variantReference || ""
 		};
 
 		return oNewFile;
