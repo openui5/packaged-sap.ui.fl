@@ -16,7 +16,7 @@ sap.ui.define([
 	 * @param {object} oFile - file content and admin data
 	 * @experimental Since 1.25.0
 	 * @author SAP SE
-	 * @version 1.44.37
+	 * @version 1.44.38
 	 */
 	var Change = function (oFile) {
 		EventProvider.apply(this);
@@ -182,6 +182,16 @@ sap.ui.define([
 	 */
 	Change.prototype.getSelector = function () {
 		return this._oDefinition.selector;
+	};
+
+	/**
+	 * Returns the user ID of the owner
+	 * @returns {string} ID of the owner
+	 *
+	 * @public
+	 */
+	Change.prototype.getOwnerId = function () {
+		return this._oDefinition.support ? this._oDefinition.support.user : "";
 	};
 
 	/**
