@@ -14,7 +14,7 @@ sap.ui.define("sap/ui/fl/support/apps/contentbrowser/utils/DataUtils", ["sap/m/G
 		 * @constructor
 		 * @alias sap.ui.fl.support.apps.contentbrowser.utils.DataUtils
 		 * @author SAP SE
-		 * @version 1.52.22
+		 * @version 1.52.23
 		 * @experimental Since 1.45
 		 */
 		var DataUtils = {
