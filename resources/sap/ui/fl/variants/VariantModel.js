@@ -1,6 +1,6 @@
 /*
  * ! UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2018 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2019 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -15,7 +15,7 @@ sap.ui.define([
 	 * @class Variant Model implementation for JSON format
 	 * @extends sap.ui.model.json.JSONModel
 	 * @author SAP SE
-	 * @version 1.52.23
+	 * @version 1.52.24
 	 * @param {object} oData either the URL where to load the JSON from or a JS object
 	 * @param {object} oFlexController the FlexController instance for the component which uses the variant model
 	 * @param {object} oComponent Component instance that is currently loading
