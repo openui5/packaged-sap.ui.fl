@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2018 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2019 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -1181,18 +1181,25 @@ sap.ui.define([
 							return this._oTransportSelection.setTransports(aChanges, sap.ui.getCore().getComponent(this.getComponentName()));
 						}
 					}.bind(this))
-						.then(function() {
-							var sUriOptions =
-								"?reference=" + this.getComponentName() +
-								"&appVersion=" + this._mComponent.appVersion +
-								"&layer=" + sLayer +
-								"&generator=" + sGenerator;
-							if (aChanges.length > 0) {
-								sUriOptions = sUriOptions + "&changelist=" + aChanges[0].getRequest();
+					.then(function() {
+						var sUriOptions =
+							"?reference=" + this.getComponentName() +
+							"&appVersion=" + this._mComponent.appVersion +
+							"&layer=" + sLayer +
+							"&generator=" + sGenerator;
+						//Make sure we include one request in case of mixed changes (local and transported)
+						var sChangeList = "";
+						aChanges.some(function(oChange) {
+							if (oChange.getRequest()) {
+								sChangeList = oChange.getRequest();
+								return true;
 							}
+							return false;
+						});
+						sUriOptions = sUriOptions + "&changelist=" + sChangeList;
 
-							return this._oConnector.send("/sap/bc/lrep/changes/" + sUriOptions, "DELETE");
-						}.bind(this));
+						return this._oConnector.send("/sap/bc/lrep/changes/" + sUriOptions, "DELETE");
+					}.bind(this));
 			}.bind(this));
 	};
 
