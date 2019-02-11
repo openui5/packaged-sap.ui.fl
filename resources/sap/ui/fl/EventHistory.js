@@ -14,7 +14,7 @@ sap.ui.define(function () {
 	 * @alias sap.ui.fl.EventHistory
 	 * @experimental Since 1.47.0
 	 * @author SAP SE
-	 * @version 1.52.24
+	 * @version 1.52.25
 	 */
 	var EventHistory = function () {
 	};
@@ -54,11 +54,18 @@ sap.ui.define(function () {
 		var oEvent = {
 			"channelId": sChannelId,
 			"eventId": sEventId,
-			"parameters": mParameters
+			"parameters": mParameters.getId() //we only need the id. In unified.shell sap.ui.getCore().byId(vControl); will be used.
 		};
 
 		if (EventHistory._oHistory[sEventId]) {
-			EventHistory._oHistory[sEventId].push(oEvent);
+			var bExists = EventHistory._oHistory[sEventId].some(function(oObject) {
+				return (oObject.channelId === oEvent.channelId &&
+					oObject.eventId === oEvent.eventId &&
+					oObject.parameters === oEvent.parameters);
+			});
+			if (!bExists) {
+				EventHistory._oHistory[sEventId].push(oEvent);
+			}
 		}
 	};
 
