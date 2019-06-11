@@ -21,7 +21,7 @@ function(
 	 *
 	 * @alias sap.ui.fl.changeHandler.MoveControls
 	 * @author SAP SE
-	 * @version 1.52.29
+	 * @version 1.52.30
 	 * @experimental Since 1.46
 	 */
 	var MoveControls = { };
