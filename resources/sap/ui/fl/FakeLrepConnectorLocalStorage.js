@@ -23,7 +23,7 @@ sap.ui.define([
 	 * @class
 	 *
 	 * @author SAP SE
-	 * @version 1.52.32
+	 * @version 1.52.34
 	 *
 	 * @private
 	 * @static
