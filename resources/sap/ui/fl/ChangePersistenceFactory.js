@@ -15,7 +15,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.ChangePersistenceFactory
 	 * @experimental Since 1.27.0
 	 * @author SAP SE
-	 * @version 1.52.34
+	 * @version 1.52.35
 	 */
 	var ChangePersistenceFactory = {};
 

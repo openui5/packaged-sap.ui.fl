@@ -15,7 +15,7 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 	 * @alias sap.ui.fl.Cache
 	 * @experimental Since 1.25.0
 	 * @author SAP SE
-	 * @version 1.52.34
+	 * @version 1.52.35
 	 */
 	var Cache = function () {
 	};
@@ -234,8 +234,9 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 						Cache._switches[sValue] = true;
 					});
 				}
-
-				mChanges.changes.changes = aChangesFromBundle.concat(mChanges.changes.changes);
+				//Remove duplicated changes
+				var aConcatredChanges = aChangesFromBundle.concat(mChanges.changes.changes);
+				mChanges.changes.changes = Cache._removeDuplicates(aConcatredChanges);
 			}
 			oCacheEntry.file = mChanges;
 			return oCacheEntry.file;
@@ -287,6 +288,28 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 		}
 	};
 
+	/**
+	 * Remove duplicated changes from a changes array
+	 *
+	 * @param {object[]} aChanges A changes array
+	 * @returns {object[]} Changes array without duplicated changes
+	 * @private
+	 * @ui5-restricted sap.ui.fl.Cache
+	 */
+	Cache._removeDuplicates = function(aChanges) {
+		var aChangeIds = [];
+		aChanges = aChanges.filter(function (oChange) {
+			var sFileName = oChange.fileName;
+			var bChangeAlreadyAdded = aChangeIds.indexOf(sFileName) !== -1;
+			if (bChangeAlreadyAdded) {
+				return false;
+			}
+
+			aChangeIds.push(sFileName);
+			return true;
+		});
+		return aChanges;
+	};
 
 	Cache.NOTAG = "<NoTag>";
 
