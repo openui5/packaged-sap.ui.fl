@@ -20,7 +20,7 @@ sap.ui.define([
 	 * @private
 	 * @sap-restricted
 	 * @author SAP SE
-	 * @version 1.52.35
+	 * @version 1.52.36
 	 */
 	var Connector = function(mParameters) {
 		this._initClientParam();

@@ -15,7 +15,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.transport.Transports
 	 * @author SAP SE
-	 * @version 1.52.35
+	 * @version 1.52.36
 	 * @since 1.38.0
 	 */
 	var Transports = function() {
