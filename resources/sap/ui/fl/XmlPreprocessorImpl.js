@@ -16,7 +16,7 @@ sap.ui.define([
 	 * @class
 	 * @constructor
 	 * @author SAP SE
-	 * @version 1.44.43
+	 * @version 1.44.44
 	 * @experimental Since 1.27.0
 	 */
 	var XmlPreprocessorImpl = function(){
