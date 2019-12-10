@@ -23,7 +23,7 @@ sap.ui.define([
 	 * @class
 	 * @constructor
 	 * @author SAP SE
-	 * @version 1.52.36
+	 * @version 1.52.37
 	 * @experimental Since 1.43.0
 	 */
 	var RegistrationDelegator = {
