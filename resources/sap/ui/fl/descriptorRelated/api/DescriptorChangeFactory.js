@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2019 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2020 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 sap.ui.define([
@@ -18,7 +18,7 @@ sap.ui.define([
 	 * @namespace
 	 * @name sap.ui.fl.descriptorRelated
 	 * @author SAP SE
-	 * @version 1.52.37
+	 * @version 1.52.38
 	 * @private
 	 * @sap-restricted
 	 */
@@ -28,7 +28,7 @@ sap.ui.define([
 	 * @namespace
 	 * @name sap.ui.fl.descriptorRelated.api
 	 * @author SAP SE
-	 * @version 1.52.37
+	 * @version 1.52.38
 	 * @private
 	 * @sap-restricted
 	 */
@@ -43,7 +43,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.descriptorRelated.api.DescriptorChange
 	 * @author SAP SE
-	 * @version 1.52.37
+	 * @version 1.52.38
 	 * @private
 	 * @sap-restricted
 	 */
@@ -178,7 +178,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.descriptorRelated.api.DescriptorChangeFactory
 	 * @author SAP SE
-	 * @version 1.52.37
+	 * @version 1.52.38
 	 * @private
 	 * @sap-restricted
 	 */
