@@ -15,7 +15,7 @@ sap.ui.define(["sap/ui/fl/context/BaseContextProvider", "sap/ui/Device"], functi
 	 * @extends sap.ui.fl.context.BaseContextProvider
 	 *
 	 * @author SAP SE
-	 * @version 1.52.38
+	 * @version 1.52.39
 	 *
 	 * @constructor
 	 * @private
