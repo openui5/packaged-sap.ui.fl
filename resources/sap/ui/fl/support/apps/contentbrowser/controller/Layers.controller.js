@@ -16,7 +16,7 @@ sap.ui.define([
 	 * @constructor
 	 * @alias sap.ui.fl.support.apps.contentbrowser.controller.Layers
 	 * @author SAP SE
-	 * @version 1.52.42
+	 * @version 1.52.43
 	 * @experimental Since 1.45
 	 */
 	return Controller.extend("sap.ui.fl.support.apps.contentbrowser.controller.Layers", {

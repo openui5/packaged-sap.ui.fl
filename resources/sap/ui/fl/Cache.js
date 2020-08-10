@@ -15,7 +15,7 @@ sap.ui.define(["sap/ui/fl/LrepConnector", "sap/ui/fl/Utils"], function (LrepConn
 	 * @alias sap.ui.fl.Cache
 	 * @experimental Since 1.25.0
 	 * @author SAP SE
-	 * @version 1.52.42
+	 * @version 1.52.43
 	 */
 	var Cache = function () {
 	};

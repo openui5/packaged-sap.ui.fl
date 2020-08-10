@@ -24,7 +24,7 @@ sap.ui.define([
 		 *
 		 * @abstract
 		 * @extends sap.ui.core.support.Plugin
-		 * @version 1.52.42
+		 * @version 1.52.43
 		 * @sap-restricted
 		 * @constructor
 		 * @private
@@ -100,7 +100,7 @@ sap.ui.define([
 
 			var _doPlainRendering = function () {
 				var rm = sap.ui.getCore().createRenderManager();
-				rm.write("<div id='" + that.getId() + "-FlexCacheArea' class='sapUiSizeCompact' />");
+				rm.write("<div id='" + that.getId() + "-FlexCacheArea' class='sapUiSizeCompact'></div>");
 				rm.flush(that.$().get(0));
 				rm.destroy();
 			};
