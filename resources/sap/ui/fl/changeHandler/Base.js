@@ -1,6 +1,6 @@
 /*!
  * UI development toolkit for HTML5 (OpenUI5)
- * (c) Copyright 2009-2019 SAP SE or an SAP affiliate company.
+ * (c) Copyright 2009-2020 SAP SE or an SAP affiliate company.
  * Licensed under the Apache License, Version 2.0 - see LICENSE.txt.
  */
 
@@ -13,7 +13,7 @@ sap.ui.define([
 	 * Base functionality for all change handler which provides some reuse methods
 	 * @alias sap.ui.fl.changeHandler.Base
 	 * @author SAP SE
-	 * @version 1.44.44
+	 * @version 1.44.46
 	 * @experimental Since 1.27.0
 	 *
 	 */
