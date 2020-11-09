@@ -22,7 +22,7 @@ sap.ui.define([
 	 * @alias sap.ui.fl.registry.ChangeTypeMetadata
 	 *
 	 * @author SAP SE
-	 * @version 1.52.45
+	 * @version 1.52.46
 	 * @experimental Since 1.27.0
 	 *
 	 */
